@@ -1,4 +1,4 @@
-# Joplin Combine notes
+# Joplin Extract Paragraphs
 
 Plugin to extract and combine paragraphs from selected notes to a new note based on a keyword, hashtag or custom tag.
 
@@ -7,13 +7,13 @@ Plugin to extract and combine paragraphs from selected notes to a new note based
 ### Automatic
 
 - Go to `Tools > Options > Plugins`
-- Search for `combine-notes`
+- Search for `extract-paragraphs`
 - Click Install plugin
 - Restart Joplin to enable the plugin
 
 ### Manual
 
-- Download the latest released JPL package (`io.github.jackgruber.combine-notes.jpl`) from [here](https://github.com/djsudduth.paragraph-extractor/releases/latest)
+- Download the latest released JPL package (`io.github.djsudduth.paragraph-extractor.jpl`) from [here](https://github.com/djsudduth.paragraph-extractor/releases/latest)
 - Close Joplin
 - Copy the downloaded JPL package in your profile `plugins` folder
 - Start Joplin
@@ -25,7 +25,7 @@ Plugin to extract and combine paragraphs from selected notes to a new note based
 
 ## Options
 
-Go to `Tools > Options > Combine notes`
+Go to `Tools > Options > Extract Paragraphs`
 
 - `Create combined note as to-do`: New note is created as To-Do. Default `false`
 - `Delete combined notes`: Delete combined notes, after note creation. Default `false`
