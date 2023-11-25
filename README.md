@@ -1,8 +1,6 @@
 # Joplin Combine notes
 
-Plugin to combine one or more notes to a new one.
-
-<img src=img/main.jpg>
+Plugin to extract and combine paragraphs from selected notes to a new note based on a keyword, hashtag or custom tag.
 
 ## Installation
 
@@ -15,7 +13,7 @@ Plugin to combine one or more notes to a new one.
 
 ### Manual
 
-- Download the latest released JPL package (`io.github.jackgruber.combine-notes.jpl`) from [here](https://github.com/JackGruber/joplin-plugin-combine/releases/latest)
+- Download the latest released JPL package (`io.github.jackgruber.combine-notes.jpl`) from [here](https://github.com/djsudduth.paragraph-extractor/releases/latest)
 - Close Joplin
 - Copy the downloaded JPL package in your profile `plugins` folder
 - Start Joplin

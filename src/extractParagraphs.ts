@@ -16,8 +16,8 @@ namespace extractParagraphs {
 
   export async function registerCommands() {
     await joplin.commands.register({
-      name: "CombineNotes",
-      label: i18n.__("cmd.combinenote"),
+      name: "ExtractParagraphs",
+      label: i18n.__("cmd.extractPara"),
       execute: async () => {
         await extractParagraphs.combine();
       },
@@ -25,12 +25,12 @@ namespace extractParagraphs {
 
     await joplin.views.menuItems.create(
       "myMenuItemToolsCombineNotes",
-      "CombineNotes",
+      "ExtractParagraphs",
       MenuItemLocation.Tools
     );
     await joplin.views.menuItems.create(
       "contextMenuItemconcatCombineNotes",
-      "CombineNotes",
+      "ExtractParagraphs",
       MenuItemLocation.NoteListContextMenu
     );
   }
@@ -42,9 +42,7 @@ namespace extractParagraphs {
       let notebookId = null;
       const newTags = [];
       let preserveMetadata = [];
-      const preserveUrl = await joplin.settings.value(
-        "preserveMetadataSourceUrl"
-      );
+
       const preserveCreatedDate = await joplin.settings.value(
         "preserveMetadataCreatedDate"
       );
@@ -54,12 +52,7 @@ namespace extractParagraphs {
       const preserveMetadataLocation = await joplin.settings.value(
         "preserveMetadataLocation"
       );
-      const preserveMetadataPrefix = await joplin.settings.value(
-        "preserveMetadataPrefix"
-      );
-      const preserveMetadataSuffix = await joplin.settings.value(
-        "preserveMetadataSuffix"
-      );
+      const tagPrefix = await joplin.settings.value("tagPrefix");
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
@@ -95,13 +88,6 @@ namespace extractParagraphs {
           ],
         });
         titles.push(note.title);
-
-        // Preserve metadata
-        if (preserveUrl === true && note.source_url != "") {
-          preserveMetadata.push(
-            "[" + i18n.__("field.sourceURL") + "](" + note.source_url + ")"
-          );
-        }
 
         if (preserveCreatedDate === true) {
           const createdDate = await extractParagraphs.getDateFormated(
@@ -151,15 +137,7 @@ namespace extractParagraphs {
         }
 
         if (preserveMetadata.length > 0) {
-          if (preserveMetadataPrefix != "") {
-            newNoteBody.push(preserveMetadataPrefix + "\n");
-          }
-
-          newNoteBody.push(preserveMetadata.join("\n") + "\n");
-
-          if (preserveMetadataSuffix != "") {
-            newNoteBody.push(preserveMetadataSuffix + "\n");
-          }
+          let a = 0;
         }
 
         if (tagName.length < 0) {
@@ -172,13 +150,13 @@ namespace extractParagraphs {
           let savetitle = false;
           for (let i = 0; i < paragraphs.length; i++) {
             const p = paragraphs[i];
-            if (p.indexOf(tagName) >= 0) {
+            if (p.indexOf(tagPrefix + tagName) >= 0) {
               if (preserveSourceNoteTitles === true && !savetitle) {
-                newNoteBody.push("# " + note.title + "\n");
+                newNoteBody.push("### " + note.title + "\n");
                 savetitle = true;
               }
               if (replaceKeyword === true) {
-                const rp = p.replace(tagName, "");
+                const rp = p.replace(tagPrefix + tagName, "");
                 newNoteBody.push(rp + "\n");
               }
             }
@@ -202,7 +180,7 @@ namespace extractParagraphs {
         if (!notebookId) notebookId = note.parent_id;
       }
       if (tagName.length >= 0) {
-        newNoteBody.push(tagName + "\n");
+        newNoteBody.push(tagPrefix + tagName + "\n");
       }
 
       const asToDo = await joplin.settings.value("asToDo");
@@ -232,19 +210,18 @@ namespace extractParagraphs {
       };
       const newNote = await joplin.data.post(["notes"], null, newNoteData);
 
+      // create new tag
+      const newTagData = {
+        title: tagName,
+      };
+      //  await joplin.data.post(['tags'], null, { title: "abd" });
+      // { title: "abd" } const newTag = await joplin.data.post(["tags"], null, id: newTagData.id);
+
       // Add Tags
       for (const tag of newTags) {
         await joplin.data.post(["tags", tag, "notes"], null, {
           id: newNote.id,
         });
-      }
-
-      // delete combined notes
-      const deleteNotes = await joplin.settings.value("deleteCombinedNotes");
-      if (deleteNotes === true) {
-        for (const noteId of ids) {
-          await joplin.data.delete(["notes", noteId]);
-        }
       }
 
       await joplin.commands.execute("openNote", newNote.id);

@@ -35,15 +35,6 @@ export namespace settings {
         description: i18n.__("settings.preserveSourceNoteTitlesDescription"),
       },
 
-      preserveMetadataSourceUrl: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.preserveMetadataSourceUrl"),
-        description: i18n.__("settings.preserveMetadataSourceUrlDescription"),
-      },
-
       preserveMetadataCreatedDate: {
         value: false,
         type: SettingItemType.Bool,
@@ -80,22 +71,13 @@ export namespace settings {
         description: i18n.__("settings.addCombineDateDescription"),
       },
 
-      preserveMetadataPrefix: {
+      tagPrefix: {
         value: "",
         type: SettingItemType.String,
         section: "extractParagraphSection",
         public: true,
-        label: i18n.__("settings.preserveMetadataPrefix"),
-        description: i18n.__("settings.preserveMetadataPrefixDescription"),
-      },
-
-      preserveMetadataSuffix: {
-        value: "",
-        type: SettingItemType.String,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.preserveMetadataSuffix"),
-        description: i18n.__("settings.preserveMetadataSuffixDescription"),
+        label: i18n.__("settings.tagPrefix"),
+        description: i18n.__("settings.tagPrefixDescription"),
       },
 
       tagName: {
