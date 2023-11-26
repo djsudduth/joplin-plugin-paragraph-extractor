@@ -43,25 +43,17 @@ namespace extractParagraphs {
       const newTags = [];
       let preserveMetadata = [];
 
-      const preserveCreatedDate = await joplin.settings.value(
-        "preserveMetadataCreatedDate"
-      );
-      const preserveUpdatedDate = await joplin.settings.value(
-        "preserveMetadataUpdatedDate"
-      );
-      const preserveMetadataLocation = await joplin.settings.value(
-        "preserveMetadataLocation"
-      );
       const tagPrefix = await joplin.settings.value("tagPrefix");
+
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
       const tagName = await joplin.settings.value("tagName");
+
       const replaceKeyword = await joplin.settings.value(
         "replaceKeywordwithTag"
       );
 
-      const addCombineDate = await joplin.settings.value("addCombineDate");
       const dateFormat = await joplin.settings.globalValue("dateFormat");
       const timeFormat = await joplin.settings.globalValue("timeFormat");
       const combineDate = await extractParagraphs.getDateFormated(
@@ -89,53 +81,6 @@ namespace extractParagraphs {
         });
         titles.push(note.title);
 
-        if (preserveCreatedDate === true) {
-          const createdDate = await extractParagraphs.getDateFormated(
-            note.created_time,
-            dateFormat,
-            timeFormat
-          );
-          preserveMetadata.push(
-            i18n.__("field.createdDate") + ": " + createdDate
-          );
-        }
-
-        if (preserveUpdatedDate === true) {
-          const updatedDate = await extractParagraphs.getDateFormated(
-            note.updated_time,
-            dateFormat,
-            timeFormat
-          );
-          preserveMetadata.push(
-            i18n.__("field.updatedDate") + ": " + updatedDate
-          );
-        }
-
-        if (addCombineDate === true) {
-          preserveMetadata.push(
-            i18n.__("field.combineDate") + ": " + combineDate
-          );
-        }
-
-        if (
-          preserveMetadataLocation === true &&
-          (note.latitude != "0.00000000" ||
-            note.longitude != "0.00000000" ||
-            note.altitude != "0.0000")
-        ) {
-          preserveMetadata.push(
-            [
-              i18n.__("field.location") + ":",
-              i18n.__("field.locationLat") + ":",
-              note.latitude,
-              i18n.__("field.locationLon") + ":",
-              note.longitude,
-              i18n.__("field.locationAltitude") + ":",
-              note.altitude,
-            ].join(" ")
-          );
-        }
-
         if (preserveMetadata.length > 0) {
           let a = 0;
         }
@@ -155,9 +100,15 @@ namespace extractParagraphs {
                 newNoteBody.push("### " + note.title + "\n");
                 savetitle = true;
               }
-              if (replaceKeyword === true) {
-                const rp = p.replace(tagPrefix + tagName, "");
-                newNoteBody.push(rp + "\n");
+              if (replaceKeyword) {
+                if (tagPrefix.length > 0) {
+                  let rp = p.replace(tagPrefix + tagName, "");
+                  newNoteBody.push(rp + "\n");
+                } else {
+                  newNoteBody.push(p + "\n");
+                }
+              } else {
+                newNoteBody.push(p + "\n");
               }
             }
           }
@@ -179,11 +130,15 @@ namespace extractParagraphs {
 
         if (!notebookId) notebookId = note.parent_id;
       }
-      if (tagName.length >= 0) {
-        newNoteBody.push(tagPrefix + tagName + "\n");
+      if (tagName.length >= 0 && replaceKeyword) {
+        if (tagPrefix.length > 0) {
+          newNoteBody.push(tagPrefix + tagName + "\n");
+        } else {
+          newNoteBody.push("#" + tagName + "\n");
+        }
       }
 
-      const asToDo = await joplin.settings.value("asToDo");
+      const asToDo = false;
 
       const titleOption = await joplin.settings.value("combinedNoteTitle");
       let newTitle = i18n.__("settings.combinedNoteTitleValueDefault");
@@ -211,11 +166,22 @@ namespace extractParagraphs {
       const newNote = await joplin.data.post(["notes"], null, newNoteData);
 
       // create new tag
-      const newTagData = {
-        title: tagName,
-      };
-      //  await joplin.data.post(['tags'], null, { title: "abd" });
-      // { title: "abd" } const newTag = await joplin.data.post(["tags"], null, id: newTagData.id);
+
+      let foundtag = false;
+      const ltagName = tagName.toLowerCase();
+      const allTags = await joplin.data.get(["tags"]);
+      for (const currentTag of allTags.items) {
+        if (currentTag.title === ltagName) {
+          foundtag = true;
+          newTags.push(currentTag.id);
+        }
+      }
+      if (!foundtag) {
+        const newTag = await joplin.data.post(["tags"], null, {
+          title: ltagName,
+        });
+        newTags.push(newTag.id);
+      }
 
       // Add Tags
       for (const tag of newTags) {

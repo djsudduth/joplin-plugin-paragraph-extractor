@@ -10,20 +10,13 @@ export namespace settings {
     });
 
     await joplin.settings.registerSettings({
-      asToDo: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.asToDo"),
-      },
-
       replaceKeywordwithTag: {
         value: false,
         type: SettingItemType.Bool,
         section: "extractParagraphSection",
         public: true,
         label: i18n.__("settings.replaceKeywordwithTag"),
+        description: i18n.__("settings.replaceKeywordwithTagDescription"),
       },
 
       preserveSourceNoteTitles: {
@@ -35,44 +28,8 @@ export namespace settings {
         description: i18n.__("settings.preserveSourceNoteTitlesDescription"),
       },
 
-      preserveMetadataCreatedDate: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.preserveMetadataCreatedDate"),
-        description: i18n.__("settings.preserveMetadataCreatedDateDescription"),
-      },
-
-      preserveMetadataUpdatedDate: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.preserveMetadataUpdatedDate"),
-        description: i18n.__("settings.preserveMetadataUpdatedDateDescription"),
-      },
-
-      preserveMetadataLocation: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.preserveMetadataLocation"),
-        description: i18n.__("settings.preserveMetadataLocationDescription"),
-      },
-
-      addCombineDate: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.addCombineDate"),
-        description: i18n.__("settings.addCombineDateDescription"),
-      },
-
       tagPrefix: {
-        value: "",
+        value: "#",
         type: SettingItemType.String,
         section: "extractParagraphSection",
         public: true,
