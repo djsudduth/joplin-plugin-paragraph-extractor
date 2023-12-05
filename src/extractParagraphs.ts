@@ -41,17 +41,21 @@ namespace extractParagraphs {
       const newNoteBody = [];
       let notebookId = null;
       const newTags = [];
-      let preserveMetadata = [];
 
       const tagPrefix = await joplin.settings.value("tagPrefix");
 
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
+
       const tagName = await joplin.settings.value("tagName");
 
       const replaceKeyword = await joplin.settings.value(
         "replaceKeywordwithTag"
+      );
+
+      const extractAtBulletLevel = await joplin.settings.value(
+        "extractAtBulletLevel"
       );
 
       const dateFormat = await joplin.settings.globalValue("dateFormat");
@@ -65,7 +69,7 @@ namespace extractParagraphs {
       // collect note data
       let titles = [];
       for (const noteId of ids) {
-        preserveMetadata = [];
+        let extractedContent = false;
         const note = await joplin.data.get(["notes", noteId], {
           fields: [
             "title",
@@ -81,55 +85,110 @@ namespace extractParagraphs {
         });
         titles.push(note.title);
 
-        if (preserveMetadata.length > 0) {
-          let a = 0;
-        }
-
-        if (tagName.length < 0) {
-          /* if (preserveSourceNoteTitles === true) {
-            newNoteBody.push("# " + note.title + "\n");
-          }
-           newNoteBody.push(note.body + "\n"); */
-        } else {
+        // keyword search will look for upper, lower, first letter upper or custom camel
+        if (tagName.length >= 0) {
           const paragraphs = note.body.split("\n\n");
           let savetitle = false;
           for (let i = 0; i < paragraphs.length; i++) {
             const p = paragraphs[i];
-            if (p.indexOf(tagPrefix + tagName) >= 0) {
-              if (preserveSourceNoteTitles === true && !savetitle) {
-                newNoteBody.push("### " + note.title + "\n");
-                savetitle = true;
+
+            if (extractAtBulletLevel) {
+              let bullets = p.split("\n- ");
+              for (let j = 0; j < bullets.length; j++) {
+                let b = bullets[j];
+                if (b[0] !== "-") {
+                  b = "- " + b;
+                }
+                if (
+                  b.includes(tagPrefix + tagName) ||
+                  b.includes(tagPrefix + tagName.toLowerCase()) ||
+                  b.includes(tagPrefix + tagName.toUpperCase()) ||
+                  b.includes(
+                    tagPrefix +
+                      tagName.charAt(0).toUpperCase() +
+                      tagName.slice(1)
+                  )
+                ) {
+                  extractedContent = true;
+                  if (preserveSourceNoteTitles === true && !savetitle) {
+                    newNoteBody.push(
+                      "### [" + note.title + "](:/" + noteId + ")\n"
+                    );
+                    savetitle = true;
+                  }
+                  if (replaceKeyword && tagPrefix.length > 0) {
+                    newNoteBody.push(
+                      b
+                        .replace(tagPrefix + tagName)
+                        .replace(tagPrefix + tagName.toLowerCase(), "")
+                        .replace(tagPrefix + tagName.toUpperCase(), "")
+                        .replace(
+                          tagPrefix +
+                            (tagName.charAt(0).toUpperCase() +
+                              tagName.slice(1)),
+                          ""
+                        ) + "\n"
+                    );
+                  } else {
+                    newNoteBody.push(b + "\n");
+                  }
+                }
               }
-              if (replaceKeyword) {
-                if (tagPrefix.length > 0) {
-                  let rp = p.replace(tagPrefix + tagName, "");
-                  newNoteBody.push(rp + "\n");
+            } else {
+              if (
+                p.includes(tagPrefix + tagName) ||
+                p.includes(tagPrefix + tagName.toLowerCase()) ||
+                p.includes(tagPrefix + tagName.toUpperCase()) ||
+                p.includes(
+                  tagPrefix + tagName.charAt(0).toUpperCase() + tagName.slice(1)
+                )
+              ) {
+                extractedContent = true;
+                if (preserveSourceNoteTitles === true && !savetitle) {
+                  newNoteBody.push(
+                    "### [" + note.title + "](:/" + noteId + ")\n"
+                  );
+                  savetitle = true;
+                }
+                if (replaceKeyword && tagPrefix.length > 0) {
+                  newNoteBody.push(
+                    p
+                      .replace(tagPrefix + tagName)
+                      .replace(tagPrefix + tagName.toLowerCase(), "")
+                      .replace(tagPrefix + tagName.toUpperCase(), "")
+                      .replace(
+                        tagPrefix +
+                          (tagName.charAt(0).toUpperCase() + tagName.slice(1)),
+                        ""
+                      ) + "\n"
+                  );
                 } else {
                   newNoteBody.push(p + "\n");
                 }
-              } else {
-                newNoteBody.push(p + "\n");
               }
             }
           }
-        }
 
-        let pageNum = 0;
-        do {
-          var noteTags = await joplin.data.get(["notes", noteId, "tags"], {
-            fields: "id",
-            limit: 50,
-            page: pageNum++,
-          });
-          for (const tag of noteTags.items) {
-            if (newTags.indexOf(tag.id) === -1) {
-              newTags.push(tag.id);
-            }
+          if (extractedContent) {
+            let pageNum = 0;
+            do {
+              var noteTags = await joplin.data.get(["notes", noteId, "tags"], {
+                fields: "id",
+                limit: 50,
+                page: pageNum++,
+              });
+              for (const tag of noteTags.items) {
+                if (newTags.indexOf(tag.id) === -1) {
+                  newTags.push(tag.id);
+                }
+              }
+            } while (noteTags.has_more);
           }
-        } while (noteTags.has_more);
-
-        if (!notebookId) notebookId = note.parent_id;
+          if (!notebookId) notebookId = note.parent_id;
+        }
       }
+
+      // add hashtag to note body if replaced within text
       if (tagName.length >= 0 && replaceKeyword) {
         if (tagPrefix.length > 0) {
           newNoteBody.push(tagPrefix + tagName + "\n");
@@ -138,16 +197,12 @@ namespace extractParagraphs {
         }
       }
 
-      const asToDo = false;
-
       const titleOption = await joplin.settings.value("combinedNoteTitle");
       let newTitle = i18n.__("settings.combinedNoteTitleValueDefault");
       if (titleOption == "first") {
         newTitle = titles[0];
       } else if (titleOption == "last") {
         newTitle = titles[titles.length - 1];
-      } else if (titleOption == "combined") {
-        newTitle = titles.join(", ");
       } else if (titleOption == "custom") {
         newTitle = await joplin.settings.value("combinedNoteTitleCustom");
         newTitle = newTitle.replace("{{FIRSTTITLE}}", titles[0]);
@@ -161,7 +216,7 @@ namespace extractParagraphs {
         title: newTitle,
         body: newNoteBody.join("\n"),
         parent_id: notebookId,
-        is_todo: asToDo,
+        is_todo: false,
       };
       const newNote = await joplin.data.post(["notes"], null, newNoteData);
 

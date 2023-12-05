@@ -10,15 +10,6 @@ export namespace settings {
     });
 
     await joplin.settings.registerSettings({
-      replaceKeywordwithTag: {
-        value: false,
-        type: SettingItemType.Bool,
-        section: "extractParagraphSection",
-        public: true,
-        label: i18n.__("settings.replaceKeywordwithTag"),
-        description: i18n.__("settings.replaceKeywordwithTagDescription"),
-      },
-
       preserveSourceNoteTitles: {
         value: true,
         type: SettingItemType.Bool,
@@ -26,6 +17,15 @@ export namespace settings {
         public: true,
         label: i18n.__("settings.preserveSourceNoteTitles"),
         description: i18n.__("settings.preserveSourceNoteTitlesDescription"),
+      },
+
+      extractAtBulletLevel: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.extractAtBulletLevel"),
+        description: i18n.__("settings.extractAtBulletLevelDescription"),
       },
 
       tagPrefix: {
@@ -46,6 +46,15 @@ export namespace settings {
         description: i18n.__("settings.tagNameDescription"),
       },
 
+      replaceKeywordwithTag: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.replaceKeywordwithTag"),
+        description: i18n.__("settings.replaceKeywordwithTagDescription"),
+      },
+
       combinedNoteTitle: {
         value: "default",
         type: SettingItemType.String,
@@ -55,7 +64,6 @@ export namespace settings {
         label: i18n.__("settings.combinedNoteTitle"),
         options: {
           default: i18n.__("settings.combinedNoteTitleValueDefault"),
-          combined: i18n.__("settings.combinedNoteTitleValueCombined"),
           first: i18n.__("settings.combinedNoteTitleValueFirst"),
           last: i18n.__("settings.combinedNoteTitleValueLast"),
           custom: i18n.__("settings.combinedNoteTitleValueCustom"),

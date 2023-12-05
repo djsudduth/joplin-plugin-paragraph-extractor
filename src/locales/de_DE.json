@@ -1,6 +1,8 @@
 {
   "settings.replaceKeywordwithTag": "Remove extracted paragraph keyword with end tag",
-  "settings.replaceKeywordwithTagDescription": "Removes the tag/keyword from the extracted paragraph and adds it as a hashtag at the combined note end.",
+  "settings.replaceKeywordwithTagDescription": "Removes tagged keywords (ignored if no tag prefix) from the extracted paragraph and adds it as a hashtag at the combined note end.",
+  "settings.extractAtBulletLevel": "Extract content at the bulleted list item level",
+  "settings.extractAtBulletLevelDescription": "Extracts only the bulleted line with the keyword rather than the full paragraph bulleted list.",
   "settings.tagName": "Paragraph Tag or Keyword",
   "settings.tagNameDescription": "Hashtag or keyword used within the paragraphs.",
   "settings.tagPrefix": "Tag Prefix character",
