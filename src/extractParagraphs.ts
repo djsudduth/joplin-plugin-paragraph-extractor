@@ -19,41 +19,39 @@ namespace extractParagraphs {
       name: "ExtractParagraphs",
       label: i18n.__("cmd.extractPara"),
       execute: async () => {
-        await extractParagraphs.combine();
+        await extractParagraphs.extract();
       },
     });
 
     await joplin.views.menuItems.create(
-      "myMenuItemToolsCombineNotes",
+      "myMenuItemToolsExtractParagraphs",
       "ExtractParagraphs",
       MenuItemLocation.Tools
     );
     await joplin.views.menuItems.create(
-      "contextMenuItemconcatCombineNotes",
+      "contextMenuItemconcatExtractParagraphs",
       "ExtractParagraphs",
       MenuItemLocation.NoteListContextMenu
     );
   }
 
-  export async function combine() {
+  export async function extract() {
     const ids = await joplin.workspace.selectedNoteIds();
-    if (ids.length > 1) {
+    if (ids.length >= 1) {
       const newNoteBody = [];
       let notebookId = null;
       const newTags = [];
+      let listTags = [];
+      let tagPages = {};
 
       const tagPrefix = await joplin.settings.value("tagPrefix");
-
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
-
       const tagName = await joplin.settings.value("tagName");
-
       const replaceKeyword = await joplin.settings.value(
         "replaceKeywordwithTag"
       );
-
       const extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
@@ -85,7 +83,20 @@ namespace extractParagraphs {
         });
         titles.push(note.title);
 
-        // keyword search will look for upper, lower, first letter upper or custom camel
+        /*
+        if (tagPrefix.length > 0) {
+          let ctags = await extractHashtagsFromMarkdown(note.body, tagPrefix);
+          for (let t = 0; t < ctags.length; t++) {
+            if (!listTags.includes(ctags[t].toLocaleLowerCase()) ) {
+              //tagPages.add()
+              listTags.push(ctags[t].toLocaleLowerCase());
+            }
+          }
+        }
+        */
+
+        // keyword search will look for upper, lower,
+        //   first letter upper or custom camel
         if (tagName.length >= 0) {
           const paragraphs = note.body.split("\n\n");
           let savetitle = false;
@@ -93,11 +104,13 @@ namespace extractParagraphs {
             const p = paragraphs[i];
 
             if (extractAtBulletLevel) {
-              let bullets = p.split("\n- ");
+              let bullets = p.split("\n-");
               for (let j = 0; j < bullets.length; j++) {
                 let b = bullets[j];
-                if (b[0] !== "-") {
-                  b = "- " + b;
+                if (b[0] !== "-" && b[0] === " ") {
+                  {
+                    b = "-" + b;
+                  }
                 }
                 if (
                   b.includes(tagPrefix + tagName) ||
@@ -119,7 +132,7 @@ namespace extractParagraphs {
                   if (replaceKeyword && tagPrefix.length > 0) {
                     newNoteBody.push(
                       b
-                        .replace(tagPrefix + tagName)
+                        .replace(tagPrefix + tagName, "")
                         .replace(tagPrefix + tagName.toLowerCase(), "")
                         .replace(tagPrefix + tagName.toUpperCase(), "")
                         .replace(
@@ -153,7 +166,7 @@ namespace extractParagraphs {
                 if (replaceKeyword && tagPrefix.length > 0) {
                   newNoteBody.push(
                     p
-                      .replace(tagPrefix + tagName)
+                      .replace(tagPrefix + tagName, "")
                       .replace(tagPrefix + tagName.toLowerCase(), "")
                       .replace(tagPrefix + tagName.toUpperCase(), "")
                       .replace(
@@ -188,7 +201,11 @@ namespace extractParagraphs {
         }
       }
 
-      // add hashtag to note body if replaced within text
+      /* add hashtag to note body if replaced within text
+      for (let i = 0; i < listTags.length; i++) {
+        newNoteBody.push("#" + listTags[i]);
+      }
+      */
       if (tagName.length >= 0 && replaceKeyword) {
         if (tagPrefix.length > 0) {
           newNoteBody.push(tagPrefix + tagName + "\n");
@@ -221,16 +238,34 @@ namespace extractParagraphs {
       const newNote = await joplin.data.post(["notes"], null, newNoteData);
 
       // create new tag
-
       let foundtag = false;
       const ltagName = tagName.toLowerCase();
-      const allTags = await joplin.data.get(["tags"]);
+      //const allTags = await joplin.data.get(["tags"]);
+
+      let pageNum = 0;
+      do {
+        var allTags = await joplin.data.get(["tags"], {
+          fields: ["title", "id"],
+          limit: 50,
+          page: pageNum++,
+        });
+        for (const currentTag of allTags.items) {
+          if (currentTag.title === ltagName) {
+            foundtag = true;
+            newTags.push(currentTag.id);
+          }
+        }
+      } while (allTags.has_more);
+
+      /*
       for (const currentTag of allTags.items) {
         if (currentTag.title === ltagName) {
           foundtag = true;
           newTags.push(currentTag.id);
         }
       }
+      */
+
       if (!foundtag) {
         const newTag = await joplin.data.post(["tags"], null, {
           title: ltagName,
@@ -238,7 +273,7 @@ namespace extractParagraphs {
         newTags.push(newTag.id);
       }
 
-      // Add Tags
+      // add tags
       for (const tag of newTags) {
         await joplin.data.post(["tags", tag, "notes"], null, {
           id: newNote.id,
@@ -263,6 +298,26 @@ namespace extractParagraphs {
       directory: path.join(installationDir, "locales"),
     });
     i18n.setLocale(joplinLocale);
+  }
+
+  export async function extractHashtagsFromMarkdown(
+    markdown: string,
+    customtag: string
+  ): Promise<Array<string>> {
+    // Define the regex pattern
+    const hashtagRegex = new RegExp(
+      `(?<=^|\\s)${customtag}([\\w-]*[\\w-]+[\\w-]*)+`,
+      "g"
+    ); // /#(\w+)/g;
+
+    // Extract hashtags from the markdown string
+    const hashtags = [];
+    let match;
+    while ((match = hashtagRegex.exec(markdown))) {
+      hashtags.push(match[1]);
+    }
+
+    return hashtags;
   }
 
   export async function getDateFormated(
