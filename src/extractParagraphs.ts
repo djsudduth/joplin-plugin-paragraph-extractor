@@ -45,16 +45,23 @@ namespace extractParagraphs {
       let tagPages = {};
 
       const tagPrefix = await joplin.settings.value("tagPrefix");
+
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
+
       const tagName = await joplin.settings.value("tagName");
+
       const replaceKeyword = await joplin.settings.value(
         "replaceKeywordwithTag"
       );
       const extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
+
+      const ignoreCase = await joplin.settings.value("ignoreCase");
+
+      const includeHeaders = await joplin.settings.value("includeHeaders");
 
       const dateFormat = await joplin.settings.globalValue("dateFormat");
       const timeFormat = await joplin.settings.globalValue("timeFormat");
@@ -93,16 +100,35 @@ namespace extractParagraphs {
             }
           }
         }
+
+        const s = "THIs- is the sentence";
+  const word = "this";
+  
+  const pattern = new RegExp(`\\b${word}\\b`, "i");
+  const matches = [];
+  const sentenceMatches = s.match(pattern);
+  if (sentenceMatches) {
+    matches.push(...sentenceMatches);
+  }
+  console.log(matches);
+const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?/g;
+  
+  const urlMatches2 = s.match(urlRegex);
+  console.log(urlMatches2);
         */
 
         // keyword search will look for upper, lower,
         //   first letter upper or custom camel
+        let last_header = "";
+
         if (tagName.length >= 0) {
           const paragraphs = note.body.split("\n\n");
           let savetitle = false;
           for (let i = 0; i < paragraphs.length; i++) {
-            const p = paragraphs[i];
-
+            let p = paragraphs[i];
+            if (p[0] === "#" && includeHeaders === true) {
+              last_header = p;
+            }
             if (extractAtBulletLevel) {
               let bullets = p.split("\n-");
               for (let j = 0; j < bullets.length; j++) {
@@ -112,15 +138,16 @@ namespace extractParagraphs {
                     b = "-" + b;
                   }
                 }
+                let bb = b;
+                if (ignoreCase === true) {
+                  bb = b.toLowerCase();
+                }
+                bb = bb.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
+                bb = bb.replace(/\s{2,}/g, " ") + " ";
                 if (
-                  b.includes(tagPrefix + tagName) ||
-                  b.includes(tagPrefix + tagName.toLowerCase()) ||
-                  b.includes(tagPrefix + tagName.toUpperCase()) ||
-                  b.includes(
-                    tagPrefix +
-                      tagName.charAt(0).toUpperCase() +
-                      tagName.slice(1)
-                  )
+                  bb.includes(tagPrefix + tagName + " ") ||
+                  bb.includes(tagPrefix + tagName + ".") ||
+                  bb.includes(tagPrefix + tagName + "\n")
                 ) {
                   extractedContent = true;
                   if (preserveSourceNoteTitles === true && !savetitle) {
@@ -129,18 +156,17 @@ namespace extractParagraphs {
                     );
                     savetitle = true;
                   }
+                  if (last_header.length > 0 && b[0] != "#") {
+                    newNoteBody.push(last_header + "\n");
+                    last_header = "";
+                  }
                   if (replaceKeyword && tagPrefix.length > 0) {
+                    const regex = new RegExp(
+                      "(" + tagPrefix + tagName + ")\\b",
+                      "gi"
+                    );
                     newNoteBody.push(
-                      b
-                        .replace(tagPrefix + tagName, "")
-                        .replace(tagPrefix + tagName.toLowerCase(), "")
-                        .replace(tagPrefix + tagName.toUpperCase(), "")
-                        .replace(
-                          tagPrefix +
-                            (tagName.charAt(0).toUpperCase() +
-                              tagName.slice(1)),
-                          ""
-                        ) + "\n"
+                      b.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
                     );
                   } else {
                     newNoteBody.push(b + "\n");
@@ -148,13 +174,23 @@ namespace extractParagraphs {
                 }
               }
             } else {
+              //if ((p[0] === "#") && (i < paragraphs.length - 1)) {
+              //  const p2 = paragraphs[i+1];
+              //  p = p + "\n" + p2;
+              //  i++;
+              //}
+              let pp = p;
+              if (ignoreCase === true) {
+                pp = p.toLowerCase();
+              }
+
+              pp = pp.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
+              pp = pp.replace(/\s{2,}/g, " ") + " ";
+
               if (
-                p.includes(tagPrefix + tagName) ||
-                p.includes(tagPrefix + tagName.toLowerCase()) ||
-                p.includes(tagPrefix + tagName.toUpperCase()) ||
-                p.includes(
-                  tagPrefix + tagName.charAt(0).toUpperCase() + tagName.slice(1)
-                )
+                pp.includes(tagPrefix + tagName + " ") ||
+                pp.includes(tagPrefix + tagName + ".") ||
+                pp.includes(tagPrefix + tagName + "\n")
               ) {
                 extractedContent = true;
                 if (preserveSourceNoteTitles === true && !savetitle) {
@@ -163,17 +199,26 @@ namespace extractParagraphs {
                   );
                   savetitle = true;
                 }
+                if (last_header.length > 0 && p[0] != "#") {
+                  newNoteBody.push(last_header + "\n");
+                  last_header = "";
+                }
+
                 if (replaceKeyword && tagPrefix.length > 0) {
+                  const regex = new RegExp(
+                    "(" + tagPrefix + tagName + ")\\b",
+                    "gi"
+                  );
                   newNoteBody.push(
-                    p
-                      .replace(tagPrefix + tagName, "")
-                      .replace(tagPrefix + tagName.toLowerCase(), "")
-                      .replace(tagPrefix + tagName.toUpperCase(), "")
-                      .replace(
-                        tagPrefix +
-                          (tagName.charAt(0).toUpperCase() + tagName.slice(1)),
-                        ""
-                      ) + "\n"
+                    p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
+                    //.replace(tagPrefix + tagName, "")
+                    //.replace(tagPrefix + tagName.toLowerCase(), "")
+                    //.replace(tagPrefix + tagName.toUpperCase(), "")
+                    //.replace(
+                    //  tagPrefix +
+                    //    (tagName.charAt(0).toUpperCase() + tagName.slice(1)),
+                    //  ""
+                    //) + "\n"
                   );
                 } else {
                   newNoteBody.push(p + "\n");
@@ -239,7 +284,7 @@ namespace extractParagraphs {
 
       // create new tag
       let foundtag = false;
-      const ltagName = tagName.toLowerCase();
+      const ltagName = tagName.toLowerCase().trim();
       //const allTags = await joplin.data.get(["tags"]);
 
       let pageNum = 0;

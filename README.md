@@ -20,30 +20,28 @@ Plugin to extract and combine paragraphs from selected notes to a new note based
 
 ## Usage
 
-- Select multiple notes to be combined into a new one
-- Click on `Tools > Combine selected notes` or use the command `Combine selected notes` from the context menu
+- Select multiple notes to extract sections based on keyword into a single note
+- Click on `Tools > Extract paragraphs from notes` or use the command `Extract paragraphs from notes` from the context menu
 
 ## Options
 
-Go to `Tools > Options > Extract Paragraphs`
+Go to `Tools > Options > Paragraph Extractor`
 
-- `Create combined note as to-do`: New note is created as To-Do. Default `false`
-- `Delete combined notes`: Delete combined notes, after note creation. Default `false`
 - `Preserve Source Note Titles`: Titles of source notes will be embedded in new note. Default `true`.
-- `Preserve Source URL`: The source URL will be added to the new note. Default `false`
-- `Preserve Created Date`: The Created Date will be added to the new note. Default `false`
-- `Preserve Updated Date`: The Updated Date will be added to the new note. Default `false`
-- `Preserve Location`: The Location (Latitude, Longitude, Altitude) will be added to the new note. Default `false`
-- `Metadata Prefix`: The entered text is output before the metadata (URL, Date, Location).
-- `Metadata Suffix`: The entered text is output after the metadata (URL, Date, Location).
-- `Title of the combined note`: New title of the combined note. Default `Combined note`.
+- `Extract content at the bulleted list item level`: Bullets will be extracted at bullet level vs all bullets. Default `false`
+- `Ignore the keyword case`: Any case for the keyword or hashtag keyword will be used for extraction. Default `false`
+- `Include the header of the section extracted`: Any H1-H6 header will be included with the extracted paragraph or bullet (this is ignored for keywords within the header which are always extracted). Default `false`
+- `Tag Prefix character`: Either the common hashtag # character or $, %. Default `none`
+- `Paragraph Tag or Keyword`: The entered keyword (or hashtag) to search in notes to extract the paragraph.
+- `Remove extracted paragraph keyword with end tag`: Any tagged/hashtagged keyword will be removed fromt the paragraph and added as an endtag in the new extraction note. Default `false`
+- `Title of the combined note`: New title of the combined note. Default `Extracted paragraphs`.
 - `Custom note title`: New note title with possible variables `{{FIRSTTITLE}}`, `{{LASTTITLE}}`, `{{ALLTITLE}}` and `{{DATE}}`.
 
 ## Keyboard Shortcuts
 
 Under `Options > Keyboard Shortcuts` you can assign a keyboard shortcut for the following commands:
 
-- `Combine selected notes`
+- `Extract paragraphs from notes`
 
 ## Build
 

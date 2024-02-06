@@ -28,6 +28,24 @@ export namespace settings {
         description: i18n.__("settings.extractAtBulletLevelDescription"),
       },
 
+      ignoreCase: {
+        value: true,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.ignoreCase"),
+        description: i18n.__("settings.ignoreCaseDescription"),
+      },
+
+      includeHeaders: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.includeHeaders"),
+        description: i18n.__("settings.includeHeadersDescription"),
+      },
+
       tagPrefix: {
         value: "#",
         type: SettingItemType.String,
