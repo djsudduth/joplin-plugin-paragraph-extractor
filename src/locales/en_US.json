@@ -10,7 +10,7 @@
   "settings.tagName": "Paragraph Tag or Keyword",
   "settings.tagNameDescription": "Keyword or hashtag text (without prefix) used within the paragraphs.",
   "settings.tagPrefix": "Tag Prefix character",
-  "settings.tagPrefixDescription": "Prefix for hashtags or any custom tags - such as # or %.",
+  "settings.tagPrefixDescription": "Prefix for hashtags or any custom tags - # is preferred but % or $ can be used.",
   "settings.preserveSourceNoteTitles": "Preserve source note titles",
   "settings.preserveSourceNoteTitlesDescription": "Preserves titles of selected notes within the combined note body",
   "settings.combinedNoteTitle": "Title of the extracted paragraphs note",

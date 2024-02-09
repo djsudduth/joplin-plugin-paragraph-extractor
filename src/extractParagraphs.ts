@@ -90,36 +90,9 @@ namespace extractParagraphs {
         });
         titles.push(note.title);
 
-        /*
-        if (tagPrefix.length > 0) {
-          let ctags = await extractHashtagsFromMarkdown(note.body, tagPrefix);
-          for (let t = 0; t < ctags.length; t++) {
-            if (!listTags.includes(ctags[t].toLocaleLowerCase()) ) {
-              //tagPages.add()
-              listTags.push(ctags[t].toLocaleLowerCase());
-            }
-          }
-        }
-
-        const s = "THIs- is the sentence";
-  const word = "this";
-  
-  const pattern = new RegExp(`\\b${word}\\b`, "i");
-  const matches = [];
-  const sentenceMatches = s.match(pattern);
-  if (sentenceMatches) {
-    matches.push(...sentenceMatches);
-  }
-  console.log(matches);
-const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?/g;
-  
-  const urlMatches2 = s.match(urlRegex);
-  console.log(urlMatches2);
-        */
-
-        // keyword search will look for upper, lower,
-        //   first letter upper or custom camel
+        // keep track of the last header in the note
         let last_header = "";
+        let header_with_keyword = "";
 
         if (tagName.length >= 0) {
           const paragraphs = note.body.split("\n\n");
@@ -138,17 +111,31 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
                     b = "-" + b;
                   }
                 }
+
+                /*
                 let bb = b;
+                let tn = tagName;
                 if (ignoreCase === true) {
                   bb = b.toLowerCase();
+                  tn = tagName.toLowerCase();
                 }
                 bb = bb.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
                 bb = bb.replace(/\s{2,}/g, " ") + " ";
                 if (
-                  bb.includes(tagPrefix + tagName + " ") ||
-                  bb.includes(tagPrefix + tagName + ".") ||
-                  bb.includes(tagPrefix + tagName + "\n")
-                ) {
+                  bb.includes(tagPrefix + tn + " ") ||
+                  bb.includes(tagPrefix + tn + ".") ||
+                  bb.includes(tagPrefix + tn + "\n")
+                ) 
+                */
+
+                let pfound = await extractParagraphs.findParagraphs(
+                  b,
+                  tagPrefix,
+                  tagName,
+                  ignoreCase
+                );
+
+                if (pfound) {
                   extractedContent = true;
                   if (preserveSourceNoteTitles === true && !savetitle) {
                     newNoteBody.push(
@@ -156,10 +143,18 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
                     );
                     savetitle = true;
                   }
-                  if (last_header.length > 0 && b[0] != "#") {
+                  if (
+                    last_header.length > 0 &&
+                    b[0] != "#" &&
+                    last_header != header_with_keyword
+                  ) {
                     newNoteBody.push(last_header + "\n");
                     last_header = "";
                   }
+                  if (b[0] === "#") {
+                    header_with_keyword = p;
+                  }
+
                   if (replaceKeyword && tagPrefix.length > 0) {
                     const regex = new RegExp(
                       "(" + tagPrefix + tagName + ")\\b",
@@ -174,24 +169,32 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
                 }
               }
             } else {
-              //if ((p[0] === "#") && (i < paragraphs.length - 1)) {
-              //  const p2 = paragraphs[i+1];
-              //  p = p + "\n" + p2;
-              //  i++;
-              //}
+              /*
               let pp = p;
+              let tn = tagName;
               if (ignoreCase === true) {
                 pp = p.toLowerCase();
+                tn = tagName.toLowerCase();
               }
 
               pp = pp.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
               pp = pp.replace(/\s{2,}/g, " ") + " ";
 
               if (
-                pp.includes(tagPrefix + tagName + " ") ||
-                pp.includes(tagPrefix + tagName + ".") ||
-                pp.includes(tagPrefix + tagName + "\n")
-              ) {
+                pp.includes(tagPrefix + tn + " ") ||
+                pp.includes(tagPrefix + tn + ".") ||
+                pp.includes(tagPrefix + tn + "\n")
+              )
+              */
+
+              let pfound = await extractParagraphs.findParagraphs(
+                p,
+                tagPrefix,
+                tagName,
+                ignoreCase
+              );
+
+              if (pfound) {
                 extractedContent = true;
                 if (preserveSourceNoteTitles === true && !savetitle) {
                   newNoteBody.push(
@@ -199,11 +202,18 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
                   );
                   savetitle = true;
                 }
-                if (last_header.length > 0 && p[0] != "#") {
+                if (
+                  last_header.length > 0 &&
+                  p[0] != "#" &&
+                  last_header != header_with_keyword
+                ) {
                   newNoteBody.push(last_header + "\n");
                   last_header = "";
                 }
 
+                if (p[0] === "#") {
+                  header_with_keyword = p;
+                }
                 if (replaceKeyword && tagPrefix.length > 0) {
                   const regex = new RegExp(
                     "(" + tagPrefix + tagName + ")\\b",
@@ -211,14 +221,6 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
                   );
                   newNoteBody.push(
                     p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
-                    //.replace(tagPrefix + tagName, "")
-                    //.replace(tagPrefix + tagName.toLowerCase(), "")
-                    //.replace(tagPrefix + tagName.toUpperCase(), "")
-                    //.replace(
-                    //  tagPrefix +
-                    //    (tagName.charAt(0).toUpperCase() + tagName.slice(1)),
-                    //  ""
-                    //) + "\n"
                   );
                 } else {
                   newNoteBody.push(p + "\n");
@@ -246,11 +248,7 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
         }
       }
 
-      /* add hashtag to note body if replaced within text
-      for (let i = 0; i < listTags.length; i++) {
-        newNoteBody.push("#" + listTags[i]);
-      }
-      */
+      // add hashtag to note body if replaced within text
       if (tagName.length >= 0 && replaceKeyword) {
         if (tagPrefix.length > 0) {
           newNoteBody.push(tagPrefix + tagName + "\n");
@@ -302,15 +300,6 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
         }
       } while (allTags.has_more);
 
-      /*
-      for (const currentTag of allTags.items) {
-        if (currentTag.title === ltagName) {
-          foundtag = true;
-          newTags.push(currentTag.id);
-        }
-      }
-      */
-
       if (!foundtag) {
         const newTag = await joplin.data.post(["tags"], null, {
           title: ltagName,
@@ -343,6 +332,33 @@ const urlRegex = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}
       directory: path.join(installationDir, "locales"),
     });
     i18n.setLocale(joplinLocale);
+  }
+
+  export async function findParagraphs(
+    paraGraphs: string,
+    tPrefix: string,
+    tName: string,
+    iCase: boolean
+  ): Promise<boolean> {
+    let pp = paraGraphs;
+    let tn = tName;
+    if (iCase === true) {
+      pp = paraGraphs.toLowerCase();
+      tn = tName.toLowerCase();
+    }
+
+    pp = pp.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
+    pp = pp.replace(/\s{2,}/g, " ") + " ";
+
+    if (
+      pp.includes(tPrefix + tn + " ") ||
+      pp.includes(tPrefix + tn + ".") ||
+      pp.includes(tPrefix + tn + "\n")
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   export async function extractHashtagsFromMarkdown(

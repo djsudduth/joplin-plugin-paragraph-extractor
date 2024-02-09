@@ -31,9 +31,9 @@ Go to `Tools > Options > Paragraph Extractor`
 - `Extract content at the bulleted list item level`: Bullets will be extracted at bullet level vs all bullets. Default `false`
 - `Ignore the keyword case`: Any case for the keyword or hashtag keyword will be used for extraction. Default `false`
 - `Include the header of the section extracted`: Any H1-H6 header will be included with the extracted paragraph or bullet (this is ignored for keywords within the header which are always extracted). Default `false`
-- `Tag Prefix character`: Either the common hashtag # character or $, %. Default `none`
+- `Tag Prefix character`: Either the common hashtag # character (preferred) or $, %. Default `none`
 - `Paragraph Tag or Keyword`: The entered keyword (or hashtag) to search in notes to extract the paragraph.
-- `Remove extracted paragraph keyword with end tag`: Any tagged/hashtagged keyword will be removed fromt the paragraph and added as an endtag in the new extraction note. Default `false`
+- `Remove extracted paragraph keyword with end tag`: Any tagged/hashtagged keyword will be removed fromt the paragraph and added as an endtag in the new extraction note. Assumes the prefix character is entered. Default `false`
 - `Title of the combined note`: New title of the combined note. Default `Extracted paragraphs`.
 - `Custom note title`: New note title with possible variables `{{FIRSTTITLE}}`, `{{LASTTITLE}}`, `{{ALLTITLE}}` and `{{DATE}}`.
 
