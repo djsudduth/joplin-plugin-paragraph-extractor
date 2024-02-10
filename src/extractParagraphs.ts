@@ -112,22 +112,6 @@ namespace extractParagraphs {
                   }
                 }
 
-                /*
-                let bb = b;
-                let tn = tagName;
-                if (ignoreCase === true) {
-                  bb = b.toLowerCase();
-                  tn = tagName.toLowerCase();
-                }
-                bb = bb.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
-                bb = bb.replace(/\s{2,}/g, " ") + " ";
-                if (
-                  bb.includes(tagPrefix + tn + " ") ||
-                  bb.includes(tagPrefix + tn + ".") ||
-                  bb.includes(tagPrefix + tn + "\n")
-                ) 
-                */
-
                 let pfound = await extractParagraphs.findParagraphs(
                   b,
                   tagPrefix,
@@ -169,24 +153,6 @@ namespace extractParagraphs {
                 }
               }
             } else {
-              /*
-              let pp = p;
-              let tn = tagName;
-              if (ignoreCase === true) {
-                pp = p.toLowerCase();
-                tn = tagName.toLowerCase();
-              }
-
-              pp = pp.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
-              pp = pp.replace(/\s{2,}/g, " ") + " ";
-
-              if (
-                pp.includes(tagPrefix + tn + " ") ||
-                pp.includes(tagPrefix + tn + ".") ||
-                pp.includes(tagPrefix + tn + "\n")
-              )
-              */
-
               let pfound = await extractParagraphs.findParagraphs(
                 p,
                 tagPrefix,
