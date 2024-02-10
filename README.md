@@ -19,7 +19,7 @@ Any Joplin tags in the source notes will be combined as Joplin tags in the extra
 
 ### Manual
 
-- Download the latest released JPL package (`io.github.djsudduth.paragraph-extractor.jpl`) from [here](https://github.com/djsudduth.paragraph-extractor/releases/latest)
+- Download the latest released JPL package (`io.github.djsudduth.paragraph-extractor.jpl`) from [here](https://github.com/djsudduth/joplin-plugin-paragraph-extractor/releases/latest)
 - Close Joplin
 - Copy the downloaded JPL package in your profile `plugins` folder
 - Start Joplin
