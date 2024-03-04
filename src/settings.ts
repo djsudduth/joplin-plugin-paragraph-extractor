@@ -56,7 +56,7 @@ export namespace settings {
       },
 
       tagName: {
-        value: "",
+        value: "keyword",
         type: SettingItemType.String,
         section: "extractParagraphSection",
         public: true,

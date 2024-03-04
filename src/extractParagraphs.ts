@@ -6,12 +6,49 @@ import { settings } from "./settings";
 import { MenuItemLocation } from "api/types";
 
 let i18n: any;
+let phandle = null;
 
 namespace extractParagraphs {
   export async function init() {
     await extractParagraphs.translate();
     await settings.register();
     await extractParagraphs.registerCommands();
+    await extractParagraphs.registerdialog();
+  }
+
+  export async function setform(prefix, tname) {
+    const dialogs = joplin.views.dialogs;
+    await dialogs.setHtml(
+      phandle,
+      `
+    <p>Enter a hashtag prefix(e.g. #) and-or keyword</p>
+    <form name="extract">
+    Tag: <input type="text" name="tag" value="` +
+        prefix +
+        `"/>
+    <br/>
+    Name: <input type="text" name="keyword" value="` +
+        tname +
+        `"/>
+    <br/></form>
+    `
+    );
+  }
+
+  export async function registerdialog() {
+    const tName = await joplin.settings.value("tagName");
+    const tPrefix = await joplin.settings.value("tagPrefix");
+    const dialogs = joplin.views.dialogs;
+    phandle = await dialogs.create("extractDialog");
+    await extractParagraphs.setform(tPrefix, tName);
+    await dialogs.setButtons(phandle, [
+      {
+        id: "ok",
+      },
+      {
+        id: "cancel",
+      },
+    ]);
   }
 
   export async function registerCommands() {
@@ -44,21 +81,36 @@ namespace extractParagraphs {
       let listTags = [];
       let tagPages = {};
 
-      const tagPrefix = await joplin.settings.value("tagPrefix");
+      const dialogs = joplin.views.dialogs;
+      const extract = await dialogs.open(phandle);
+      console.info("Got result: " + JSON.stringify(extract));
+      if (extract.id === "cancel") {
+        return;
+      }
+
+      const fresults = extract.formData["extract"];
+      let tagName = fresults["keyword"];
+      if (tagName === "") {
+        return;
+      }
+      let tagPrefix = fresults["tag"];
+      await extractParagraphs.setform(tagPrefix, tagName);
+
+      // const tagPrefix = await joplin.settings.value("tagPrefix");
+      // const tagName = await joplin.settings.value("tagName");
+
+      await joplin.settings.setValue("tagName", tagName);
+      await joplin.settings.setValue("tagPrefix", tagPrefix);
 
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
-
-      const tagName = await joplin.settings.value("tagName");
-
       const replaceKeyword = await joplin.settings.value(
         "replaceKeywordwithTag"
       );
       const extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
-
       const ignoreCase = await joplin.settings.value("ignoreCase");
 
       const includeHeaders = await joplin.settings.value("includeHeaders");
