@@ -23,14 +23,17 @@ namespace extractParagraphs {
       `
     <p>Enter a hashtag prefix(e.g. #) and-or keyword</p>
     <form name="extract">
-    Tag: <input type="text" name="tag" value="` +
+    Tag:<br/><input type="text" name="tag" value="` +
         prefix +
         `"/>
     <br/>
-    Name: <input type="text" name="keyword" value="` +
+    Name:<br/><input type="text" name="keyword" value="` +
         tname +
         `"/>
-    <br/></form>
+    <br/>
+    <input type="checkbox" id="pfolder" name="pfolder" value="true">
+    <label for="pfolder">All files within this folder:</label><br />
+    </form>
     `
     );
   }
@@ -70,34 +73,49 @@ namespace extractParagraphs {
       "ExtractParagraphs",
       MenuItemLocation.NoteListContextMenu
     );
+    await joplin.views.menuItems.create(
+      "contextFolderItemconcatExtractParagraphs",
+      "ExtractParagraphs",
+      MenuItemLocation.FolderContextMenu
+    );
   }
 
   export async function extract() {
-    const ids = await joplin.workspace.selectedNoteIds();
+    // Paragraph extraction dialog
+    const dialogs = joplin.views.dialogs;
+    const extract = await dialogs.open(phandle);
+    if (extract.id === "cancel") {
+      return;
+    }
+    const fresults = extract.formData["extract"];
+    const ckfolder = fresults["pfolder"];
+    let tagName = fresults["keyword"];
+    let tagPrefix = fresults["tag"];
+    if (tagName === "") {
+      return;
+    }
+    // Save the last search
+    await extractParagraphs.setform(tagPrefix, tagName);
+    let ids = [];
+    if (ckfolder === "true") {
+      let nfolder = await joplin.workspace.selectedFolder();
+      const jnotes = await fetchAllItems(["search"], {
+        query: `notebook:"${nfolder.title}"`,
+        fields: ["id"],
+      }); //, "title", "body"]});
+      for (const jnote of jnotes) {
+        ids.push(jnote.id);
+      }
+    } else {
+      ids = await joplin.workspace.selectedNoteIds();
+    }
+
     if (ids.length >= 1) {
       const newNoteBody = [];
       let notebookId = null;
       const newTags = [];
       let listTags = [];
       let tagPages = {};
-
-      const dialogs = joplin.views.dialogs;
-      const extract = await dialogs.open(phandle);
-      console.info("Got result: " + JSON.stringify(extract));
-      if (extract.id === "cancel") {
-        return;
-      }
-
-      const fresults = extract.formData["extract"];
-      let tagName = fresults["keyword"];
-      if (tagName === "") {
-        return;
-      }
-      let tagPrefix = fresults["tag"];
-      await extractParagraphs.setform(tagPrefix, tagName);
-
-      // const tagPrefix = await joplin.settings.value("tagPrefix");
-      // const tagName = await joplin.settings.value("tagName");
 
       await joplin.settings.setValue("tagName", tagName);
       await joplin.settings.setValue("tagPrefix", tagPrefix);
@@ -241,6 +259,8 @@ namespace extractParagraphs {
                     p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
                   );
                 } else {
+                  //newNoteBody.push(JSON.stringify(jnotes) + "\n" + p + "\n");
+                  // newNoteBody.push(jids + "\n" + p + "\n");
                   newNoteBody.push(p + "\n");
                 }
               }
@@ -398,6 +418,23 @@ namespace extractParagraphs {
 
     return hashtags;
   }
+
+  export const fetchAllItems = async (
+    path: string[],
+    query: any
+  ): Promise<any[]> => {
+    let pageNum = 1;
+    let response;
+    let items = [];
+
+    do {
+      response = await joplin.data.get(path, { ...query, page: pageNum });
+      items = items.concat(response.items);
+      pageNum++;
+    } while (response.has_more);
+
+    return items;
+  };
 
   export async function getDateFormated(
     epoch: number,
