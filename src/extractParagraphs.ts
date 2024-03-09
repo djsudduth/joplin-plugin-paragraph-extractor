@@ -31,8 +31,8 @@ namespace extractParagraphs {
         tname +
         `"/>
     <br/>
-    <input type="checkbox" id="pfolder" name="pfolder" value="true">
-    <label for="pfolder">All files within this folder:</label><br />
+    <input type="checkbox" id="ckbfolder" name="ckbfolder" value="true">
+    <label for="ckbfolder">All files within this folder</label><br />
     </form>
     `
     );
@@ -88,23 +88,26 @@ namespace extractParagraphs {
       return;
     }
     const fresults = extract.formData["extract"];
-    const ckfolder = fresults["pfolder"];
+    const ckbfolder = fresults["ckbfolder"];
     let tagName = fresults["keyword"];
     let tagPrefix = fresults["tag"];
     if (tagName === "") {
       return;
     }
+
     // Save the last search
     await extractParagraphs.setform(tagPrefix, tagName);
     let ids = [];
-    if (ckfolder === "true") {
-      let nfolder = await joplin.workspace.selectedFolder();
-      const jnotes = await fetchAllItems(["search"], {
-        query: `notebook:"${nfolder.title}"`,
-        fields: ["id"],
+    if (ckbfolder === "true") {
+      let sfolder = await joplin.workspace.selectedFolder();
+      const folder_notes = await fetchAllItems(["search"], {
+        query: `notebook:"${sfolder.title}"`,
+        fields: ["id", "parent_id"],
       }); //, "title", "body"]});
-      for (const jnote of jnotes) {
-        ids.push(jnote.id);
+      for (const fnote of folder_notes) {
+        if (fnote.parent_id === sfolder.id) {
+          ids.push(fnote.id);
+        }
       }
     } else {
       ids = await joplin.workspace.selectedNoteIds();
@@ -117,6 +120,7 @@ namespace extractParagraphs {
       let listTags = [];
       let tagPages = {};
 
+      // Save the last keyword extraction values in defaults
       await joplin.settings.setValue("tagName", tagName);
       await joplin.settings.setValue("tagPrefix", tagPrefix);
 
@@ -130,7 +134,6 @@ namespace extractParagraphs {
         "extractAtBulletLevel"
       );
       const ignoreCase = await joplin.settings.value("ignoreCase");
-
       const includeHeaders = await joplin.settings.value("includeHeaders");
 
       const dateFormat = await joplin.settings.globalValue("dateFormat");
@@ -259,8 +262,6 @@ namespace extractParagraphs {
                     p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
                   );
                 } else {
-                  //newNoteBody.push(JSON.stringify(jnotes) + "\n" + p + "\n");
-                  // newNoteBody.push(jids + "\n" + p + "\n");
                   newNoteBody.push(p + "\n");
                 }
               }

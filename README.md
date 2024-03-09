@@ -33,12 +33,12 @@ Any Joplin tags in the source notes will be combined as Joplin tags in the extra
 
 Go to `Tools > Options > Paragraph Extractor`
 
-- `Preserve Source Note Titles`: Titles of source notes will be embedded in new note. Default `true`.
+- `Preserve source note titles with backlinks`: Titles of source notes will be embedded in new note with links back to the original source notes. Default `true`.
 - `Extract content at the bulleted list item level`: Bullets will be extracted at the top bullet level (including sub-bullets) vs all bullets within a paragraph. Default `false`
 - `Ignore the keyword case`: Any case for the keyword or hashtag keyword will be used for extraction. Default `false`
 - `Include the header of the section extracted`: Any H1-H6 header will be included with the extracted paragraph or bullet (this is ignored for keywords embedded within the header which are always extracted). Default `false`
-- `Tag Prefix character`: Either the common hashtag # character (preferred) or $, %. Default `none`
-- `Paragraph Tag or Keyword`: The entered keyword to search in notes to extract the paragraph. If the prefix hashtag field is set, then the tag is added to the keyword for finding paragraph blocks.
+- `Default or Last Used Tag Prefix character`: Either the common hashtag # character (preferred) or $, %. Default `#`
+- `Default of Last Used Paragraph Tag or Keyword`: The entered keyword to search in notes to extract the paragraph. If the prefix hashtag field is set, then the tag is added to the keyword for finding paragraph blocks.
 - `Remove extracted paragraph keyword and add end tag`: Any tagged/hashtagged keyword will be removed from the paragraph and an endtag will be addedin the new extraction note. Removal assumes the prefix character is entered. End tag is added always. Default `false`
 - `Title of the combined note`: New title of the combined note. Default `Extracted paragraphs`.
 - `Custom note title`: New note title with possible variables `{{FIRSTTITLE}}`, `{{LASTTITLE}}`, `{{ALLTITLE}}` and `{{DATE}}`.
@@ -56,3 +56,7 @@ See [BUILD](BUILD.md)
 ## Changelog
 
 See [Changelog](CHANGELOG.md)
+
+## Thanks
+
+Special thanks to [Jack Gruber](https://github.com/JackGruber) for the inspiration and excellent code to help bootstrap this plugin!
