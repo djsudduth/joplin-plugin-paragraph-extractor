@@ -7,6 +7,8 @@
   "settings.ignoreCaseDescription": "Alle Notizen werden nach dem Schlüsselwort in beliebiger Kombination aus Groß- und Kleinschreibung durchsucht",
   "settings.includeHeaders": "Fügen Sie die Überschrift des extrahierten Absatzes ein",
   "settings.includeHeadersDescription": "Der H1-, H2- usw. Header ist in der zugrunde liegenden Extraktion enthalten (wenn ein Schlüsselwort im Header enthalten ist, wird es ignoriert).",
+  "settings.includeTaggedNotes": "Fügen Sie den gesamten Text aus Notizen mit dem Tag „Schlüsselwort“ ein",
+  "settings.includeTaggedNotesDescription": "Alle Notizinhalte, die über ein Joplin-Tag verfügen, das mit dem Schlüsselwort übereinstimmt, werden extrahiert",
   "settings.tagName": "Standard- oder zuletzt verwendetes Absatz-Tag oder Schlüsselwort",
   "settings.tagNameDescription": "Standardmäßiger oder zuletzt verwendeter Schlüsselwort- oder Hashtag-Text (ohne Präfix), der in den Absätzen verwendet wird.",
   "settings.tagPrefix": "Standard- oder zuletzt verwendetes Tag-Präfixzeichen",

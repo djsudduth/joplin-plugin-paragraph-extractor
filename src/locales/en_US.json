@@ -7,6 +7,8 @@
   "settings.ignoreCaseDescription": "All notes will be searched for the keyword in any upper or lower case mix",
   "settings.includeHeaders": "Include the header of the paragraph extracted",
   "settings.includeHeadersDescription": "The H1, H2, etc header will be included with the underlying extraction (if keyword included in header, this is ignored)",
+  "settings.includeTaggedNotes": "Include all text from notes with tag keyword",
+  "settings.includeTaggedNotesDescription": "All note content that has a Joplin tag that matches the keyword will be extracted",
   "settings.tagName": "Default or Last Used Paragraph Tag or Keyword",
   "settings.tagNameDescription": "Default or last used keyword or hashtag text (without prefix) used within the paragraphs.",
   "settings.tagPrefix": "Default or Last Used Tag Prefix Character",

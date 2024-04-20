@@ -27,7 +27,7 @@ namespace extractParagraphs {
         prefix +
         `"/>
     <br/>
-    Name:<br/><input type="text" name="keyword" value="` +
+    Keyword:<br/><input type="text" name="keyword" value="` +
         tname +
         `"/>
     <br/>
@@ -82,7 +82,12 @@ namespace extractParagraphs {
 
   export async function extract() {
     // Paragraph extraction dialog
+
     const dialogs = joplin.views.dialogs;
+    const tN = await joplin.settings.value("tagName");
+    const tP = await joplin.settings.value("tagPrefix");
+    await extractParagraphs.setform(tP, tN);
+
     const extract = await dialogs.open(phandle);
     if (extract.id === "cancel") {
       return;
@@ -304,6 +309,7 @@ namespace extractParagraphs {
         newTitle = titles[titles.length - 1];
       } else if (titleOption == "custom") {
         newTitle = await joplin.settings.value("combinedNoteTitleCustom");
+        newTitle = newTitle.replace("{{TAGKEYWORD}}", tagName);
         newTitle = newTitle.replace("{{FIRSTTITLE}}", titles[0]);
         newTitle = newTitle.replace("{{LASTTITLE}}", titles[titles.length - 1]);
         newTitle = newTitle.replace("{{ALLTITLE}}", titles.join(", "));

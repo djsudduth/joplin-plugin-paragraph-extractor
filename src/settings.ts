@@ -96,7 +96,7 @@ export namespace settings {
         label: i18n.__("settings.combinedNoteTitleCustom"),
         description: i18n.__(
           "settings.combinedNoteTitleCustomDescription",
-          "{{FIRSTTITLE}}, {{LASTTITLE}}, {{ALLTITLE}}, {{DATE}}"
+          "{{TAGKEYWORD}}, {{FIRSTTITLE}}, {{LASTTITLE}}, {{ALLTITLE}}, {{DATE}}"
         ),
       },
     });
