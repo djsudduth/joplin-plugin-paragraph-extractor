@@ -132,9 +132,7 @@ namespace extractParagraphs {
       const preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
-      const replaceKeyword = await joplin.settings.value(
-        "replaceKeywordwithTag"
-      );
+      let replaceKeyword = await joplin.settings.value("replaceKeywordwithTag");
       const extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
@@ -171,27 +169,95 @@ namespace extractParagraphs {
         // keep track of the last header in the note
         let last_header = "";
         let header_with_keyword = "";
+        let full_page = false;
 
         if (tagName.length >= 0) {
           const paragraphs = note.body.split("\n\n");
-          let savetitle = false;
-          for (let i = 0; i < paragraphs.length; i++) {
-            let p = paragraphs[i];
-            if (p[0] === "#" && includeHeaders === true) {
-              last_header = p;
+
+          const last_paragraph = paragraphs[paragraphs.length - 1].trim();
+          // const regex = /^([#%$]?[a-zA-Z]+,\s*)*[#%$]?[a-zA-Z]+$/;
+          if (
+            last_paragraph[0] === tagPrefix &&
+            last_paragraph.includes(tagPrefix + tagName)
+          ) {
+            full_page = true;
+            if (preserveSourceNoteTitles === true) {
+              newNoteBody.push("### [" + note.title + "](:/" + noteId + ")\n");
             }
-            if (extractAtBulletLevel) {
-              let bullets = p.split("\n-");
-              for (let j = 0; j < bullets.length; j++) {
-                let b = bullets[j];
-                if (b[0] !== "-" && b[0] === " ") {
-                  {
-                    b = "-" + b;
+            if (replaceKeyword && tagPrefix.length > 0) {
+              const regex = new RegExp(
+                "(" + tagPrefix + tagName + ")\\b",
+                "gi"
+              );
+              newNoteBody.push(note.body.replaceAll(regex, "") + "\n");
+
+              //
+              //replaceKeyword = false;
+            } else {
+              newNoteBody.push(note.body);
+            }
+          }
+
+          if (!full_page) {
+            let savetitle = false;
+            for (let i = 0; i < paragraphs.length; i++) {
+              let p = paragraphs[i];
+              if (p[0] === "#" && includeHeaders === true) {
+                last_header = p;
+              }
+              if (extractAtBulletLevel) {
+                let bullets = p.split("\n-");
+                for (let j = 0; j < bullets.length; j++) {
+                  let b = bullets[j];
+                  if (b[0] !== "-" && b[0] === " ") {
+                    {
+                      b = "-" + b;
+                    }
+                  }
+
+                  let pfound = await extractParagraphs.findParagraphs(
+                    b,
+                    tagPrefix,
+                    tagName,
+                    ignoreCase
+                  );
+
+                  if (pfound) {
+                    extractedContent = true;
+                    if (preserveSourceNoteTitles === true && !savetitle) {
+                      newNoteBody.push(
+                        "### [" + note.title + "](:/" + noteId + ")\n"
+                      );
+                      savetitle = true;
+                    }
+                    if (
+                      last_header.length > 0 &&
+                      b[0] != "#" &&
+                      last_header != header_with_keyword
+                    ) {
+                      newNoteBody.push(last_header + "\n");
+                      last_header = "";
+                    }
+                    if (b[0] === "#") {
+                      header_with_keyword = p;
+                    }
+
+                    if (replaceKeyword && tagPrefix.length > 0) {
+                      const regex = new RegExp(
+                        "(" + tagPrefix + tagName + ")\\b",
+                        "gi"
+                      );
+                      newNoteBody.push(
+                        b.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
+                      );
+                    } else {
+                      newNoteBody.push(b + "\n");
+                    }
                   }
                 }
-
+              } else {
                 let pfound = await extractParagraphs.findParagraphs(
-                  b,
+                  p,
                   tagPrefix,
                   tagName,
                   ignoreCase
@@ -207,67 +273,27 @@ namespace extractParagraphs {
                   }
                   if (
                     last_header.length > 0 &&
-                    b[0] != "#" &&
+                    p[0] != "#" &&
                     last_header != header_with_keyword
                   ) {
                     newNoteBody.push(last_header + "\n");
                     last_header = "";
                   }
-                  if (b[0] === "#") {
+
+                  if (p[0] === "#") {
                     header_with_keyword = p;
                   }
-
                   if (replaceKeyword && tagPrefix.length > 0) {
                     const regex = new RegExp(
                       "(" + tagPrefix + tagName + ")\\b",
                       "gi"
                     );
                     newNoteBody.push(
-                      b.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
+                      p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
                     );
                   } else {
-                    newNoteBody.push(b + "\n");
+                    newNoteBody.push(p + "\n");
                   }
-                }
-              }
-            } else {
-              let pfound = await extractParagraphs.findParagraphs(
-                p,
-                tagPrefix,
-                tagName,
-                ignoreCase
-              );
-
-              if (pfound) {
-                extractedContent = true;
-                if (preserveSourceNoteTitles === true && !savetitle) {
-                  newNoteBody.push(
-                    "### [" + note.title + "](:/" + noteId + ")\n"
-                  );
-                  savetitle = true;
-                }
-                if (
-                  last_header.length > 0 &&
-                  p[0] != "#" &&
-                  last_header != header_with_keyword
-                ) {
-                  newNoteBody.push(last_header + "\n");
-                  last_header = "";
-                }
-
-                if (p[0] === "#") {
-                  header_with_keyword = p;
-                }
-                if (replaceKeyword && tagPrefix.length > 0) {
-                  const regex = new RegExp(
-                    "(" + tagPrefix + tagName + ")\\b",
-                    "gi"
-                  );
-                  newNoteBody.push(
-                    p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
-                  );
-                } else {
-                  newNoteBody.push(p + "\n");
                 }
               }
             }

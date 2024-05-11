@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.3 (2024-05-12)
+
+- Added extraction of full page if the hashtag and keyword are at the end of the note
+
 ## v1.1.2 (2024-04-19)
 
 - Changed extractor dialog label from 'name' to 'keyword'

@@ -1,10 +1,12 @@
 # Joplin Extract Paragraphs
 
-Plugin to extract and combine paragraph blocks from any selected notes to a single new note based on a keyword, hashtag or custom tag. This is similar to block functionality in other note taking systems.
+Plugin to extract and combine paragraph blocks from any selected notes to a single new note based on a keyword, hashtag or custom tag contained within the paragraph. This is similar to block functionality in other note taking systems.
 
 Typical useage is to identify paragraphs with added hashtags (e.g., #mytag). Then, any paragraph with that tag in multiple notes can be copied and added to a single new note. However, keywords do not have to be hashtags and can just be a simple search word to identify and extract the paragraph.
 
 Bullet and sub-bullet lists are treated as single paragraphs in Joplin. Settings will allow for extracting single bullets (along with their sub-bullets) that contain the keyword rather than all the bullets in the paragraph.
+
+The full note can be extracted if the hashtagged keyword is by iteself in the last paragraph. This is useful if you do not wish to add the same hashtag to every paragraph if the entire note is useful.
 
 Any Joplin tags in the source notes will be combined as Joplin tags in the extracted note. Selected notes are not changed at all.
 
