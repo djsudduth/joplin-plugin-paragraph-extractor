@@ -196,6 +196,9 @@ namespace extractParagraphs {
             } else {
               newNoteBody.push(note.body);
             }
+            if (preserveSourceNoteTitles === true) {
+              newNoteBody.push("\n&nbsp;\n");
+            }
           }
 
           if (!full_page) {
@@ -243,15 +246,23 @@ namespace extractParagraphs {
                     }
 
                     if (replaceKeyword && tagPrefix.length > 0) {
-                      const regex = new RegExp(
+                      var regex = new RegExp(
+                        "( " + tagPrefix + tagName + ")\\b",
+                        "gi"
+                      );
+                      const pass1 = b.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
+                      regex = new RegExp(
                         "(" + tagPrefix + tagName + ")\\b",
                         "gi"
                       );
-                      newNoteBody.push(
-                        b.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
-                      );
+                      const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
+
+                      newNoteBody.push(finalpara + "\n");
                     } else {
                       newNoteBody.push(b + "\n");
+                    }
+                    if (preserveSourceNoteTitles === true) {
+                      newNoteBody.push("\n&nbsp;\n");
                     }
                   }
                 }
@@ -284,15 +295,23 @@ namespace extractParagraphs {
                     header_with_keyword = p;
                   }
                   if (replaceKeyword && tagPrefix.length > 0) {
-                    const regex = new RegExp(
+                    var regex = new RegExp(
+                      "( " + tagPrefix + tagName + ")\\b",
+                      "gi"
+                    );
+                    const pass1 = p.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
+                    regex = new RegExp(
                       "(" + tagPrefix + tagName + ")\\b",
                       "gi"
                     );
-                    newNoteBody.push(
-                      p.replaceAll(regex, "").replace(/\s{2,}/g, " ") + "\n"
-                    );
+                    const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
+
+                    newNoteBody.push(finalpara + "\n");
                   } else {
                     newNoteBody.push(p + "\n");
+                  }
+                  if (preserveSourceNoteTitles === true) {
+                    newNoteBody.push("\n&nbsp;\n");
                   }
                 }
               }
