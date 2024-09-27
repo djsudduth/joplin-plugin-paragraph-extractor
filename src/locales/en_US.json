@@ -15,6 +15,8 @@
   "settings.tagPrefixDescription": "Default or last used prefix for hashtags or any custom tags - # is preferred but % or $ can be used.",
   "settings.preserveSourceNoteTitles": "Preserve source note titles with back links",
   "settings.preserveSourceNoteTitlesDescription": "Preserves titles and links back to selected notes within the combined note body",
+  "settings.embedSourceNoteTitles": "Embed source note titles at end of each extracted paragraph",
+  "settings.embedSourceNoteTitlesDescription": "Preserved titles/links are added at paragraph ends vs. as title links (Preserve Titles will be set to enabled)",
   "settings.combinedNoteTitle": "Title of the extracted paragraphs note",
   "settings.combinedNoteTitleValueDefault": "Extracted paragraphs",
   "settings.combinedNoteTitleValueCombined": "Combination of all note titles",

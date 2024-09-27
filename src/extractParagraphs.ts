@@ -129,9 +129,15 @@ namespace extractParagraphs {
       await joplin.settings.setValue("tagName", tagName);
       await joplin.settings.setValue("tagPrefix", tagPrefix);
 
-      const preserveSourceNoteTitles = await joplin.settings.value(
+      let preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
+      const embedSourceNoteTitles = await joplin.settings.value(
+        "embedSourceNoteTitles"
+      );
+      if (embedSourceNoteTitles) {
+        preserveSourceNoteTitles = true;
+      }
       let replaceKeyword = await joplin.settings.value("replaceKeywordwithTag");
       const extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
@@ -149,6 +155,9 @@ namespace extractParagraphs {
 
       // collect note data
       let titles = [];
+      let title_count = 0;
+      let t_prefix = "";
+
       for (const noteId of ids) {
         let extractedContent = false;
         const note = await joplin.data.get(["notes", noteId], {
@@ -227,11 +236,24 @@ namespace extractParagraphs {
 
                   if (pfound) {
                     extractedContent = true;
-                    if (preserveSourceNoteTitles === true && !savetitle) {
+                    if (
+                      preserveSourceNoteTitles === true &&
+                      !savetitle &&
+                      !embedSourceNoteTitles
+                    ) {
+                      if (title_count != 0) {
+                        t_prefix = "\n&nbsp;\n";
+                      }
                       newNoteBody.push(
-                        "### [" + note.title + "](:/" + noteId + ")\n"
+                        t_prefix +
+                          "### [" +
+                          note.title +
+                          "](:/" +
+                          noteId +
+                          ")\n"
                       );
                       savetitle = true;
+                      title_count++;
                     }
                     if (
                       last_header.length > 0 &&
@@ -257,12 +279,35 @@ namespace extractParagraphs {
                       );
                       const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
 
-                      newNoteBody.push(finalpara + "\n");
+                      if (
+                        preserveSourceNoteTitles === true &&
+                        embedSourceNoteTitles
+                      ) {
+                        newNoteBody.push(
+                          finalpara +
+                            " ([" +
+                            note.title +
+                            "](:/" +
+                            noteId +
+                            "))\n"
+                        );
+                      } else {
+                        newNoteBody.push(finalpara + "\n");
+                      }
                     } else {
-                      newNoteBody.push(b + "\n");
+                      if (
+                        preserveSourceNoteTitles === true &&
+                        embedSourceNoteTitles
+                      ) {
+                        newNoteBody.push(
+                          b + " ([" + note.title + "](:/" + noteId + "))\n"
+                        );
+                      } else {
+                        newNoteBody.push(b + "\n");
+                      }
                     }
                     if (preserveSourceNoteTitles === true) {
-                      newNoteBody.push("\n&nbsp;\n");
+                      //newNoteBody.push("\n&nbsp;\n");
                     }
                   }
                 }
@@ -276,11 +321,19 @@ namespace extractParagraphs {
 
                 if (pfound) {
                   extractedContent = true;
-                  if (preserveSourceNoteTitles === true && !savetitle) {
+                  if (
+                    preserveSourceNoteTitles === true &&
+                    !savetitle &&
+                    !embedSourceNoteTitles
+                  ) {
+                    if (title_count != 0) {
+                      t_prefix = "\n&nbsp;\n";
+                    }
                     newNoteBody.push(
-                      "### [" + note.title + "](:/" + noteId + ")\n"
+                      t_prefix + "### [" + note.title + "](:/" + noteId + ")\n"
                     );
                     savetitle = true;
+                    title_count++;
                   }
                   if (
                     last_header.length > 0 &&
@@ -305,13 +358,38 @@ namespace extractParagraphs {
                       "gi"
                     );
                     const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
-
-                    newNoteBody.push(finalpara + "\n");
+                    if (
+                      preserveSourceNoteTitles === true &&
+                      embedSourceNoteTitles
+                    ) {
+                      newNoteBody.push(
+                        finalpara +
+                          " ([" +
+                          note.title +
+                          "](:/" +
+                          noteId +
+                          "))\n"
+                      );
+                    } else {
+                      newNoteBody.push(finalpara + "\n");
+                    }
                   } else {
-                    newNoteBody.push(p + "\n");
+                    if (
+                      preserveSourceNoteTitles === true &&
+                      embedSourceNoteTitles
+                    ) {
+                      newNoteBody.push(
+                        p + " ([" + note.title + "](:/" + noteId + "))\n"
+                      );
+                    } else {
+                      newNoteBody.push(p + "\n");
+                    }
                   }
-                  if (preserveSourceNoteTitles === true) {
-                    newNoteBody.push("\n&nbsp;\n");
+                  if (
+                    preserveSourceNoteTitles === true &&
+                    !embedSourceNoteTitles
+                  ) {
+                    //newNoteBody.push("\n&nbsp;\n");
                   }
                 }
               }

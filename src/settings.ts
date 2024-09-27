@@ -19,6 +19,15 @@ export namespace settings {
         description: i18n.__("settings.preserveSourceNoteTitlesDescription"),
       },
 
+      embedSourceNoteTitles: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.embedSourceNoteTitles"),
+        description: i18n.__("settings.embedSourceNoteTitlesDescription"),
+      },
+
       extractAtBulletLevel: {
         value: false,
         type: SettingItemType.Bool,

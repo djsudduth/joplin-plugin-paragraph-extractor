@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.5 (2024-09-27)
+
+- Added option to have backlinks to the parent note embedded at the end of each extracted paragraph
+- Fixed extra carriage return issues
+
 ## v1.1.4 (2024-06-20)
 
 - Fixed the collapse of bulleted notes if the keyword or hashtagged keyword is extracted from the note content and moved to an end tag

@@ -15,6 +15,8 @@
   "settings.tagPrefixDescription": "Standard- oder zuletzt verwendetes Präfix für Hashtags oder benutzerdefinierte Tags – # wird bevorzugt, aber % oder $ können verwendet werden.",
   "settings.preserveSourceNoteTitles": "Behalten Sie die Titel der Quellnotizen mit Backlinks bei",
   "settings.preserveSourceNoteTitlesDescription": "Behält Titel und Links zurück zu ausgewählten Notizen im kombinierten Notiztext bei.",
+  "settings.embedSourceNoteTitles": "Betten Sie am Ende jedes extrahierten Absatzes die Titel der Quellennotizen ein.",
+  "settings.embedSourceNoteTitlesDescription": "Beibehaltene Titel/Links werden am Absatzende und nicht als Titellinks hinzugefügt (Titel beibehalten wird auf „Aktiviert“ gesetzt).",
   "settings.combinedNoteTitle": "Titel der extrahierten Absatznotiz",
   "settings.combinedNoteTitleValueDefault": "Extrahierte Absätze",
   "settings.combinedNoteTitleValueCombined": "Kombination aus allen Notiztitel",
