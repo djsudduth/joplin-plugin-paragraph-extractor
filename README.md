@@ -37,7 +37,8 @@ Any Joplin tags in the source notes will be combined as Joplin tags in the extra
 
 Go to `Tools > Options > Paragraph Extractor`
 
-- `Preserve source note titles with backlinks`: Titles of source notes will be embedded in new note with links back to the original source notes. Default `true`.
+- `Preserve source note titles with backlinks`: Titles of source notes will be embedded at the top in new note with links back to the original source notes. Default `true`.
+- `Embed source note titles at end of each extracted paragraph`: Titles of source notes will be embedded at the end of each extracted paragraph rather than at the top with a link back to the original source notes. Default `false`.
 - `Extract content at the bulleted list item level`: Bullets will be extracted at the top bullet level (including sub-bullets) vs all bullets within a paragraph. Default `false`
 - `Ignore the keyword case`: Any case for the keyword or hashtag keyword will be used for extraction. Default `false`
 - `Include the header of the section extracted`: Any H1-H6 header will be included with the extracted paragraph or bullet (this is ignored for keywords embedded within the header which are always extracted). Default `false`
