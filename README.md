@@ -33,7 +33,8 @@ Any Joplin tags in the source notes will be combined as Joplin tags in the extra
 - Select multiple notes to extract sections based on keyword into a single note
 - Click on `Tools > Extract paragraphs from notes` or use the command `Extract paragraphs from notes` from the context menu
 
-Complete Video Tutorial: https://youtu.be/tyk66PUjSCE
+Complete Video Tutorial:
+![Paragraph Extractor Overview](https://youtu.be/tyk66PUjSCE)
 
 ## Options
 
