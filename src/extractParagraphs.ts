@@ -59,7 +59,15 @@ namespace extractParagraphs {
       name: "ExtractParagraphs",
       label: i18n.__("cmd.extractPara"),
       execute: async () => {
-        await extractParagraphs.extract();
+        await extractParagraphs.extract(false);
+      },
+    });
+
+    await joplin.commands.register({
+      name: "RefreshParagraphs",
+      label: i18n.__("cmd.refreshPara"),
+      execute: async () => {
+        await extractParagraphs.extract(true);
       },
     });
 
@@ -69,10 +77,22 @@ namespace extractParagraphs {
       MenuItemLocation.Tools
     );
     await joplin.views.menuItems.create(
+      "myMenuItemToolsRefresh",
+      "RefreshParagraphs",
+      MenuItemLocation.Tools
+    );
+
+    await joplin.views.menuItems.create(
       "contextMenuItemconcatExtractParagraphs",
       "ExtractParagraphs",
       MenuItemLocation.NoteListContextMenu
     );
+    await joplin.views.menuItems.create(
+      "contextMenuItemconcatRefresh",
+      "RefreshParagraphs",
+      MenuItemLocation.NoteListContextMenu
+    );
+
     await joplin.views.menuItems.create(
       "contextFolderItemconcatExtractParagraphs",
       "ExtractParagraphs",
@@ -80,28 +100,33 @@ namespace extractParagraphs {
     );
   }
 
-  export async function extract() {
+  export async function extract(refreshNote) {
     // Paragraph extraction dialog
-
     const dialogs = joplin.views.dialogs;
-    const tN = await joplin.settings.value("tagName");
-    const tP = await joplin.settings.value("tagPrefix");
-    await extractParagraphs.setform(tP, tN);
+    let tagName = await joplin.settings.value("tagName");
+    let tagPrefix = await joplin.settings.value("tagPrefix");
+    let ckbfolder = "false";
+    let pexSettings = null;
 
-    const extract = await dialogs.open(phandle);
-    if (extract.id === "cancel") {
-      return;
-    }
-    const fresults = extract.formData["extract"];
-    const ckbfolder = fresults["ckbfolder"];
-    let tagName = fresults["keyword"];
-    let tagPrefix = fresults["tag"];
-    if (tagName === "") {
-      return;
+    if (!refreshNote) {
+      await extractParagraphs.setform(tagPrefix, tagName);
+
+      const extract = await dialogs.open(phandle);
+      if (extract.id === "cancel") {
+        return;
+      }
+      const fresults = extract.formData["extract"];
+      ckbfolder = fresults["ckbfolder"];
+      tagName = fresults["keyword"];
+      tagPrefix = fresults["tag"];
+      if (tagName === "") {
+        return;
+      }
+
+      // Save the last search
+      await extractParagraphs.setform(tagPrefix, tagName);
     }
 
-    // Save the last search
-    await extractParagraphs.setform(tagPrefix, tagName);
     let ids = [];
     if (ckbfolder === "true") {
       let sfolder = await joplin.workspace.selectedFolder();
@@ -118,6 +143,59 @@ namespace extractParagraphs {
       ids = await joplin.workspace.selectedNoteIds();
     }
 
+    if (refreshNote && ids.length > 1) {
+      const userItem = dialogs.showMessageBox(
+        "Mulitple note refresh is not supported - select only 1 note"
+      );
+      return;
+    }
+
+    // Check refresh here - ids can contain the list of notes to be refreshed
+    let refreshnotes = [];
+    let footer = "";
+    let replaceID = null;
+    let rnote = null;
+    let nullRefresh = false;
+
+    if (refreshNote && ids.length === 1) {
+      for (const noteId of ids) {
+        replaceID = noteId;
+        rnote = await joplin.data.get(["notes", noteId], {
+          fields: ["title", "body"],
+        });
+
+        if (rnote.body.includes("<!-- pex|")) {
+          footer = rnote.body.split("<!-- pex|");
+          const chunks = footer[1].split("|");
+          for (const chunk of chunks) {
+            const pexid = chunk.split(":");
+            switch (pexid[0]) {
+              case "n":
+                refreshnotes = pexid[1].split(",");
+                break;
+              case "s":
+                pexSettings = pexid[1].split(",");
+                break;
+            }
+          }
+        } else {
+          const nullpick = dialogs.showMessageBox(
+            "The note is missing refresh metadata. Turn on extract metadata in settings."
+          );
+          nullRefresh = true;
+        }
+
+        // Set the note body
+        //await joplin.data.put(['notes', noteId], null, { body: "New note body" });
+      }
+      if (!nullRefresh && footer.length > 0) {
+        ids.length = 0;
+        ids.push(...refreshnotes);
+      }
+    } else {
+      nullRefresh = true;
+    }
+
     if (ids.length >= 1) {
       const newNoteBody = [];
       let notebookId = null;
@@ -132,18 +210,19 @@ namespace extractParagraphs {
       let preserveSourceNoteTitles = await joplin.settings.value(
         "preserveSourceNoteTitles"
       );
-      const embedSourceNoteTitles = await joplin.settings.value(
+      let embedSourceNoteTitles = await joplin.settings.value(
         "embedSourceNoteTitles"
       );
       if (embedSourceNoteTitles) {
         preserveSourceNoteTitles = true;
       }
       let replaceKeyword = await joplin.settings.value("replaceKeywordwithTag");
-      const extractAtBulletLevel = await joplin.settings.value(
+      let extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
-      const ignoreCase = await joplin.settings.value("ignoreCase");
-      const includeHeaders = await joplin.settings.value("includeHeaders");
+      let ignoreCase = await joplin.settings.value("ignoreCase");
+      let includeHeaders = await joplin.settings.value("includeHeaders");
+      let refreshMetaData = await joplin.settings.value("refreshMetaData");
 
       const dateFormat = await joplin.settings.globalValue("dateFormat");
       const timeFormat = await joplin.settings.globalValue("timeFormat");
@@ -153,8 +232,21 @@ namespace extractParagraphs {
         timeFormat
       );
 
+      if (refreshNote && !nullRefresh) {
+        preserveSourceNoteTitles = pexSettings[0] === "0" ? false : true;
+        embedSourceNoteTitles = pexSettings[1] === "0" ? false : true;
+        extractAtBulletLevel = pexSettings[2] === "0" ? false : true;
+        ignoreCase = pexSettings[3] === "0" ? false : true;
+        includeHeaders = pexSettings[4] === "0" ? false : true;
+        replaceKeyword = pexSettings[5] === "0" ? false : true;
+        refreshMetaData = pexSettings[6] === "0" ? false : true;
+        tagPrefix = pexSettings[7];
+        tagName = pexSettings[8];
+      }
+
       // collect note data
       let titles = [];
+      let nIDs = "";
       let title_count = 0;
       let t_prefix = "";
 
@@ -181,7 +273,10 @@ namespace extractParagraphs {
         let full_page = false;
 
         if (tagName.length >= 0) {
-          const paragraphs = note.body.split("\n\n");
+          const paragraphs = note.body
+            .split("\n\n")
+            .filter((str) => str.trim() !== "")
+            .filter((str) => str.trim() !== "&nbsp;");
 
           const last_paragraph = paragraphs[paragraphs.length - 1].trim();
           // const regex = /^([#%$]?[a-zA-Z]+,\s*)*[#%$]?[a-zA-Z]+$/;
@@ -190,7 +285,7 @@ namespace extractParagraphs {
             last_paragraph.includes(tagPrefix + tagName)
           ) {
             full_page = true;
-            if (preserveSourceNoteTitles === true) {
+            if (preserveSourceNoteTitles === true && !embedSourceNoteTitles) {
               newNoteBody.push("### [" + note.title + "](:/" + noteId + ")\n");
             }
             if (replaceKeyword && tagPrefix.length > 0) {
@@ -205,8 +300,15 @@ namespace extractParagraphs {
             } else {
               newNoteBody.push(note.body);
             }
+            if (embedSourceNoteTitles) {
+              newNoteBody.push(" ([" + note.title + "](:/" + noteId + "))\n");
+            }
             if (preserveSourceNoteTitles === true) {
               newNoteBody.push("\n&nbsp;\n");
+            }
+
+            if (!nIDs.includes(noteId)) {
+              nIDs += noteId + ",";
             }
           }
 
@@ -235,6 +337,9 @@ namespace extractParagraphs {
                   );
 
                   if (pfound) {
+                    if (!nIDs.includes(noteId)) {
+                      nIDs += noteId + ",";
+                    }
                     extractedContent = true;
                     if (
                       preserveSourceNoteTitles === true &&
@@ -320,6 +425,9 @@ namespace extractParagraphs {
                 );
 
                 if (pfound) {
+                  if (!nIDs.includes(noteId)) {
+                    nIDs += noteId + ",";
+                  }
                   extractedContent = true;
                   if (
                     preserveSourceNoteTitles === true &&
@@ -424,6 +532,38 @@ namespace extractParagraphs {
         }
       }
 
+      if (refreshMetaData) {
+        // add the refresh information
+        const now = new Date();
+        const pexDate = now.getTime();
+        newNoteBody.push(
+          "<!-- pex" +
+            "|s:" +
+            Number(preserveSourceNoteTitles).toString() +
+            "," +
+            Number(embedSourceNoteTitles).toString() +
+            "," +
+            Number(extractAtBulletLevel).toString() +
+            "," +
+            Number(ignoreCase).toString() +
+            "," +
+            Number(includeHeaders).toString() +
+            "," +
+            Number(replaceKeyword).toString() +
+            "," +
+            Number(refreshMetaData).toString() +
+            "," +
+            tagPrefix +
+            "," +
+            tagName +
+            "|n:" +
+            nIDs.slice(0, -1) +
+            "|d:" +
+            pexDate.toString() +
+            "| -->"
+        );
+      }
+
       const titleOption = await joplin.settings.value("combinedNoteTitle");
       let newTitle = i18n.__("settings.combinedNoteTitleValueDefault");
       if (titleOption == "first") {
@@ -446,40 +586,60 @@ namespace extractParagraphs {
         parent_id: notebookId,
         is_todo: false,
       };
-      const newNote = await joplin.data.post(["notes"], null, newNoteData);
 
-      // create new tag
-      let foundtag = false;
-      const ltagName = tagName.toLowerCase().trim();
-      //const allTags = await joplin.data.get(["tags"]);
-
-      let pageNum = 0;
-      do {
-        var allTags = await joplin.data.get(["tags"], {
-          fields: ["title", "id"],
-          limit: 50,
-          page: pageNum++,
-        });
-        for (const currentTag of allTags.items) {
-          if (currentTag.title === ltagName) {
-            foundtag = true;
-            newTags.push(currentTag.id);
-          }
+      let newNote = null;
+      if (refreshNote) {
+        if (!nullRefresh) {
+          const tempRefresh = nIDs.split(",")[0];
+          //await joplin.commands.execute("openNote",todoID);
+          //await joplin.commands.execute("textSelectAll");
+          //await joplin.commands.execute("replaceSelection", newNoteData.body);
+          await joplin.data.put(["notes", replaceID], null, {
+            body: newNoteData.body,
+          });
+          //let i = await joplin.data.get(["notes", replaceID]);
+          await joplin.commands.execute("openNote", tempRefresh);
+          await joplin.commands.execute("openNote", replaceID);
+          newNote = rnote;
         }
-      } while (allTags.has_more);
-
-      if (!foundtag) {
-        const newTag = await joplin.data.post(["tags"], null, {
-          title: ltagName,
-        });
-        newTags.push(newTag.id);
+      } else {
+        newNote = await joplin.data.post(["notes"], null, newNoteData);
       }
 
-      // add tags
-      for (const tag of newTags) {
-        await joplin.data.post(["tags", tag, "notes"], null, {
-          id: newNote.id,
-        });
+      if (!refreshNote) {
+        // create new tag
+        let foundtag = false;
+        const ltagName = tagName.toLowerCase().trim();
+        //const allTags = await joplin.data.get(["tags"]);
+
+        let pageNum = 0;
+        do {
+          var allTags = await joplin.data.get(["tags"], {
+            fields: ["title", "id"],
+            limit: 50,
+            page: pageNum++,
+          });
+          for (const currentTag of allTags.items) {
+            if (currentTag.title === ltagName) {
+              foundtag = true;
+              newTags.push(currentTag.id);
+            }
+          }
+        } while (allTags.has_more);
+
+        if (!foundtag) {
+          const newTag = await joplin.data.post(["tags"], null, {
+            title: ltagName,
+          });
+          newTags.push(newTag.id);
+        }
+
+        // add tags
+        for (const tag of newTags) {
+          await joplin.data.post(["tags", tag, "notes"], null, {
+            id: newNote.id,
+          });
+        }
       }
 
       await joplin.commands.execute("openNote", newNote.id);
@@ -521,7 +681,9 @@ namespace extractParagraphs {
     if (
       pp.includes(tPrefix + tn + " ") ||
       pp.includes(tPrefix + tn + ".") ||
-      pp.includes(tPrefix + tn + "\n")
+      pp.includes(tPrefix + tn + "\n") ||
+      pp.includes(tPrefix + tn + "<") ||
+      pp.includes(tPrefix + tn + "=")
     ) {
       return true;
     } else {

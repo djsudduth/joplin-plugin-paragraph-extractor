@@ -1,6 +1,8 @@
 {
   "settings.replaceKeywordwithTag": "Entfernen Sie das extrahierte Absatzschlüsselwort mit dem End-Tag",
   "settings.replaceKeywordwithTagDescription": "Entfernt mit Tags versehene Schlüsselwörter (wird ignoriert, wenn kein Tag-Präfix vorhanden ist) aus dem extrahierten Absatz und fügt sie als Hashtag am Ende der kombinierten Notiz hinzu.",
+  "settings.refreshMetaData": "Extrahierte Notizaktualisierungsmetadaten anhängen",
+  "settings.refreshMetaDataDescription": "Extrahierte Notizeinstellungen und Notizliste zum Aktualisieren am Ende der Notiz hinzufügen",
   "settings.extractAtBulletLevel": "Extrahieren Sie Inhalte auf der Ebene der Aufzählungslistenelemente",
   "settings.extractAtBulletLevelDescription": "Extrahiert nur die Aufzählungszeile mit dem Schlüsselwort und nicht die vollständige Aufzählungsliste des Absatzes.",
   "settings.ignoreCase": "Ignorieren Sie die Groß-/Kleinschreibung des Schlüsselworts",
@@ -26,6 +28,7 @@
   "settings.combinedNoteTitleCustom": "Benutzerdefinierter Titel",
   "settings.combinedNoteTitleCustomDescription": "Benutzerdefinierter Titel, zu verfügung stehende Variablen: %s",
   "cmd.extractPara": "Extrahieren Sie Absätze aus Notizen",
+  "cmd.refreshPara": "Extrahierte Absatznotiz aktualisieren",
   "field.updatedDate": "Geändert",
   "field.createdDate": "Erstellt",
   "field.combineDate": "Kombiniert",

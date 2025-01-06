@@ -1,6 +1,8 @@
 {
   "settings.replaceKeywordwithTag": "Remove extracted paragraph keyword with end tag",
   "settings.replaceKeywordwithTagDescription": "Removes keywords with tagged prefix (ignored if no prefix character) from the extracted paragraph and adds it as a hashtag at the combined note end.",
+  "settings.refreshMetaData": "Append extracted note refresh metadata",
+  "settings.refreshMetaDataDescription": "Add extracted note settings and note list to the end of the note for refresh",
   "settings.extractAtBulletLevel": "Extract content at the bulleted list item level",
   "settings.extractAtBulletLevelDescription": "Extracts only the bulleted line with the keyword rather than the full paragraph bulleted list.",
   "settings.ignoreCase": "Ignore the keyword case",
@@ -26,6 +28,7 @@
   "settings.combinedNoteTitleCustom": "Custom note title",
   "settings.combinedNoteTitleCustomDescription": "Custom title, available variables: %s",
   "cmd.extractPara": "Extract paragraphs from notes",
+  "cmd.refreshPara": "Refresh extracted paragraphs note",
   "field.updatedDate": "Updated",
   "field.createdDate": "Created",
   "field.combineDate": "Combined",

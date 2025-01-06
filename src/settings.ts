@@ -82,6 +82,15 @@ export namespace settings {
         description: i18n.__("settings.replaceKeywordwithTagDescription"),
       },
 
+      refreshMetaData: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.refreshMetaData"),
+        description: i18n.__("settings.refreshMetaDataDescription"),
+      },
+
       combinedNoteTitle: {
         value: "default",
         type: SettingItemType.String,

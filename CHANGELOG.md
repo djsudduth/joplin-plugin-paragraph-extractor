@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.6 (2025-01-06)
+
+- Added settings, metadata and menu option to refresh the extracted paragraphs from the source notes if any have changed
+- Fixed backlink to parent note settings bug if the full note text is extracted using the keyword at the end of the note
+
 ## v1.1.5 (2024-09-27)
 
 - Added option to have backlinks to the parent note embedded at the end of each extracted paragraph

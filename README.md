@@ -30,8 +30,15 @@ Any Joplin tags in the source notes will be combined as Joplin tags in the extra
 
 ## Usage
 
+### Extracting Paragraphs
+
 - Select multiple notes to extract sections based on keyword into a single note
 - Click on `Tools > Extract paragraphs from notes` or use the command `Extract paragraphs from notes` from the context menu
+
+### Refreshing Extracted Notes
+
+- Select a single note that was previously extracted with the appended metadata (see settings to turn on metadata)
+- Click on `Tools > Refresh extracted paragraphs note` or use the command `Refresh extracted paragraphs note` from the context menu
 
 Complete Video Tutorial:  
 https://youtu.be/tyk66PUjSCE
@@ -48,6 +55,7 @@ Go to `Tools > Options > Paragraph Extractor`
 - `Default or Last Used Tag Prefix character`: Either the common hashtag # character (preferred) or $, %. Default `#`
 - `Default or Last Used Paragraph Tag or Keyword`: The entered keyword to search in notes to extract the paragraph. If the prefix hashtag field is set, then the tag is added to the keyword for finding paragraph blocks.
 - `Remove extracted paragraph keyword and add end tag`: Any tagged/hashtagged keyword will be removed from the paragraph and an endtag will be added in the new extraction note. Removal assumes the keyword has a hashtag prefix character - otherwise the setting is ignored. The end tag is always appended when this is selected. Default `false`
+- `Append extracted note refresh metadata`: When paragraphs are extracted from one or many notes, the details of the plugin's settings and source note list will be appended as metadata in the form of a comment. This can be used to refresh an extracted note if the source note or notes change. Default `false`
 - `Title of the combined note`: New title of the combined note. Default `Extracted paragraphs`.
 - `Custom note title`: New note title with possible variables `{{FIRSTTITLE}}`, `{{LASTTITLE}}`, `{{ALLTITLE}}` and `{{DATE}}`.
 
