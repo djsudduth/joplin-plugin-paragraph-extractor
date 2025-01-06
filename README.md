@@ -12,6 +12,8 @@ Bullet and sub-bullet lists are treated as single paragraphs in Joplin. Settings
 
 Any Joplin tags in the source notes will be combined as Joplin tags in the extracted note. Selected notes are not changed at all.
 
+**Extracted notes can be refreshed from the source notes** if the setting to add extraction metadata is on. This will allow an extracted note to update if any of the source notes change. (NOTE: only one extracted note can be refrehed at a time)
+
 ## Installation
 
 ### Automatic
