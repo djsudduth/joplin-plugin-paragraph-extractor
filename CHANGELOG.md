@@ -1,7 +1,8 @@
 # Changelog
 
-## v1.1.6 (2025-01-06)
+## v1.1.6/1.1.7 (2025-01-06)
 
+- 1.1.7 no code change - just republish to production
 - Added settings, metadata and menu option to refresh the extracted paragraphs from the source notes if any have changed
 - Fixed backlink to parent note settings bug if the full note text is extracted using the keyword at the end of the note
 

@@ -184,9 +184,6 @@ namespace extractParagraphs {
           );
           nullRefresh = true;
         }
-
-        // Set the note body
-        //await joplin.data.put(['notes', noteId], null, { body: "New note body" });
       }
       if (!nullRefresh && footer.length > 0) {
         ids.length = 0;
