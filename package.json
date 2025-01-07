@@ -1,6 +1,6 @@
 {
   "name": "joplin-plugin-paragraph-extractor",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "scripts": {
     "prepare": "npm run dist && husky install",
     "dist": "webpack --env joplin-plugin-config=buildMain && webpack --env joplin-plugin-config=buildExtraScripts && webpack --env joplin-plugin-config=createArchive",
@@ -16,7 +16,6 @@
     "joplin-plugin"
   ],
   "devDependencies": {
-    "@joplin/lib": "~2.9",
     "@types/node": "^18.7.13",
     "chalk": "^4.1.0",
     "copy-webpack-plugin": "^11.0.0",
