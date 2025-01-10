@@ -160,12 +160,16 @@ namespace extractParagraphs {
     if (refreshNote && ids.length === 1) {
       for (const noteId of ids) {
         replaceID = noteId;
-        rnote = await joplin.data.get(["notes", noteId], {
-          fields: ["title", "body"],
-        });
+        rnote = await joplin.data
+          .get(["notes", noteId], {
+            fields: ["title", "body"],
+          })
+          .catch((error) => {
+            error;
+          });
 
-        if (rnote.body.includes("<!-- pex|")) {
-          footer = rnote.body.split("<!-- pex|");
+        if (rnote.body.includes("-- pex|")) {
+          footer = rnote.body.split("-- pex|");
           const chunks = footer[1].split("|");
           for (const chunk of chunks) {
             const pexid = chunk.split(":");
@@ -220,6 +224,7 @@ namespace extractParagraphs {
       let ignoreCase = await joplin.settings.value("ignoreCase");
       let includeHeaders = await joplin.settings.value("includeHeaders");
       let refreshMetaData = await joplin.settings.value("refreshMetaData");
+      //let richtextMetaData = await joplin.settings.value("richtextMetaData");
 
       const dateFormat = await joplin.settings.globalValue("dateFormat");
       const timeFormat = await joplin.settings.globalValue("timeFormat");
@@ -533,8 +538,10 @@ namespace extractParagraphs {
         // add the refresh information
         const now = new Date();
         const pexDate = now.getTime();
+
+        let pexHeader = "> <!-- pex";
         newNoteBody.push(
-          "<!-- pex" +
+          pexHeader +
             "|s:" +
             Number(preserveSourceNoteTitles).toString() +
             "," +
@@ -595,6 +602,8 @@ namespace extractParagraphs {
             body: newNoteData.body,
           });
           //let i = await joplin.data.get(["notes", replaceID]);
+          //console.info(tempRefresh);
+          //console.info(replaceID);
           await joplin.commands.execute("openNote", tempRefresh);
           await joplin.commands.execute("openNote", replaceID);
           newNote = rnote;
@@ -638,8 +647,9 @@ namespace extractParagraphs {
           });
         }
       }
-
-      await joplin.commands.execute("openNote", newNote.id);
+      if (!refreshNote) {
+        await joplin.commands.execute("openNote", newNote.id);
+      }
     }
   }
 
