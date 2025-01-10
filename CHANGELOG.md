@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.1 (2025-01-10)
+
+- Added setting to stop the deletion of refresh metadata if extracted note is edited in the rich text editor
+- Added warning that any edits to an extracted paragraph with refresh will be overwritten
+
+## v1.2.0 (2025-01-08)
+
+- Fixed refresh metadata bugs
+
 ## v1.1.9 (2025-01-06)
 
 - 1.1.6/1.1.9 no code change - just republish to production

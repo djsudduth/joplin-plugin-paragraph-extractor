@@ -3,6 +3,8 @@
   "settings.replaceKeywordwithTagDescription": "Entfernt mit Tags versehene Schlüsselwörter (wird ignoriert, wenn kein Tag-Präfix vorhanden ist) aus dem extrahierten Absatz und fügt sie als Hashtag am Ende der kombinierten Notiz hinzu.",
   "settings.refreshMetaData": "Extrahierte Notizaktualisierungsmetadaten anhängen",
   "settings.refreshMetaDataDescription": "Extrahierte Notizeinstellungen und Notizliste zum Aktualisieren am Ende der Notiz hinzufügen",
+  "settings.richtextMetaData": "Aktivieren Sie die Rich-Text-Editor-Kompatibilität zum Aktualisieren von Metadaten",
+  "settings.richtextMetaDataDescription": "Verhindern Sie, dass Aktualisierungsmetadaten automatisch vom Rich-Text-Editor gelöscht werden",
   "settings.extractAtBulletLevel": "Extrahieren Sie Inhalte auf der Ebene der Aufzählungslistenelemente",
   "settings.extractAtBulletLevelDescription": "Extrahiert nur die Aufzählungszeile mit dem Schlüsselwort und nicht die vollständige Aufzählungsliste des Absatzes.",
   "settings.ignoreCase": "Ignorieren Sie die Groß-/Kleinschreibung des Schlüsselworts",

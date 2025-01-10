@@ -12,7 +12,7 @@ Bullet and sub-bullet lists are treated as single paragraphs in Joplin. Settings
 
 Any Joplin tags in the source notes will be combined as Joplin tags in the extracted note. Selected notes are not changed at all.
 
-**Extracted notes can be refreshed from the source notes** if the setting to add extraction metadata is on. This will allow an extracted note to update if any of the source notes change. (NOTE: only one extracted note can be refrehed at a time).
+**Extracted notes can be refreshed from the source notes** if the setting to add extraction metadata is on. This will allow an extracted note to update if any of the source notes change. (NOTE: only one extracted note can be refrehed at a time. Also, if you use the rich text editor, you **must have the rich text metadata selection in settings turned on** so that the data isn't deleted if editing the extracted note).
 
 ## Installation
 
@@ -59,6 +59,7 @@ Go to `Tools > Options > Paragraph Extractor`
 - `Remove extracted paragraph keyword and add end tag`: Any tagged/hashtagged keyword will be removed from the paragraph and an endtag will be added in the new extraction note. Removal assumes the keyword has a hashtag prefix character - otherwise the setting is ignored. The end tag is always appended when this is selected. Default `false`
 - `Append extracted note refresh metadata`: When paragraphs are extracted from one or many notes, the details of the plugin's settings and source note list will be appended as metadata in the form of a comment. This can be used to refresh an extracted note if the source note or notes change. Default `false`
 - `Append extracted note refresh metadata`: When paragraphs are extracted from one or many notes, the details of the plugin's settings and source note list will be appended as metadata in the form of a comment (unless the rich text compatibility option is selected which will make the metadata visible). This can be used to refresh an extracted note if the source note or notes change. Default `false`
+- `Enable rich text editor compatibility for refresh metadata`: If the rich text editor is used with note refresh - this must be enabled so that the appended refresh metadata isn't deleted when a refreshed note is edited within the rich editor. This does not need to be enabled if using only the markdown editor. Default `true`
 - `Title of the combined note`: New title of the combined note. Default `Extracted paragraphs`.
 - `Custom note title`: New note title with possible variables `{{FIRSTTITLE}}`, `{{LASTTITLE}}`, `{{ALLTITLE}}` and `{{DATE}}`.
 

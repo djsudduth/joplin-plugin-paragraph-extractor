@@ -169,6 +169,12 @@ namespace extractParagraphs {
           });
 
         if (rnote.body.includes("-- pex|")) {
+          const refreshWarning = await dialogs.showMessageBox(
+            "Refreshing extracted notes will overwrite any changes. Do you wish to continue?"
+          );
+          if (refreshWarning > 0) {
+            return;
+          }
           footer = rnote.body.split("-- pex|");
           const chunks = footer[1].split("|");
           for (const chunk of chunks) {
@@ -221,6 +227,7 @@ namespace extractParagraphs {
       let extractAtBulletLevel = await joplin.settings.value(
         "extractAtBulletLevel"
       );
+      let richtextMetaData = await joplin.settings.value("richtextMetaData");
       let ignoreCase = await joplin.settings.value("ignoreCase");
       let includeHeaders = await joplin.settings.value("includeHeaders");
       let refreshMetaData = await joplin.settings.value("refreshMetaData");
@@ -244,6 +251,7 @@ namespace extractParagraphs {
         refreshMetaData = pexSettings[6] === "0" ? false : true;
         tagPrefix = pexSettings[7];
         tagName = pexSettings[8];
+        richtextMetaData = pexSettings[9] === "0" ? false : true;
       }
 
       // collect note data
@@ -540,6 +548,9 @@ namespace extractParagraphs {
         const pexDate = now.getTime();
 
         let pexHeader = "> <!-- pex";
+        if (richtextMetaData) {
+          pexHeader = "> < -- pex";
+        }
         newNoteBody.push(
           pexHeader +
             "|s:" +
@@ -560,6 +571,8 @@ namespace extractParagraphs {
             tagPrefix +
             "," +
             tagName +
+            "," +
+            Number(richtextMetaData).toString() +
             "|n:" +
             nIDs.slice(0, -1) +
             "|d:" +

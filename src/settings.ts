@@ -91,6 +91,15 @@ export namespace settings {
         description: i18n.__("settings.refreshMetaDataDescription"),
       },
 
+      richtextMetaData: {
+        value: true,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.richtextMetaData"),
+        description: i18n.__("settings.richtextMetaDataDescription"),
+      },
+
       combinedNoteTitle: {
         value: "default",
         type: SettingItemType.String,

@@ -3,6 +3,8 @@
   "settings.replaceKeywordwithTagDescription": "Removes keywords with tagged prefix (ignored if no prefix character) from the extracted paragraph and adds it as a hashtag at the combined note end.",
   "settings.refreshMetaData": "Append extracted note refresh metadata",
   "settings.refreshMetaDataDescription": "Add extracted note settings and note list to the end of the note for refresh",
+  "settings.richtextMetaData": "Enable rich text editor compatibility for refresh metadata",
+  "settings.richtextMetaDataDescription": "Stop refresh metadata from being automatically deleted by the rich text editor",
   "settings.extractAtBulletLevel": "Extract content at the bulleted list item level",
   "settings.extractAtBulletLevelDescription": "Extracts only the bulleted line with the keyword rather than the full paragraph bulleted list.",
   "settings.ignoreCase": "Ignore the keyword case",
