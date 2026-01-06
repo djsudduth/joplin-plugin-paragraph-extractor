@@ -17,6 +17,8 @@
   "settings.tagNameDescription": "Standardmäßiger oder zuletzt verwendeter Schlüsselwort- oder Hashtag-Text (ohne Präfix), der in den Absätzen verwendet wird.",
   "settings.tagPrefix": "Standard- oder zuletzt verwendetes Tag-Präfixzeichen",
   "settings.tagPrefixDescription": "Standard- oder zuletzt verwendetes Präfix für Hashtags oder benutzerdefinierte Tags – # wird bevorzugt, aber % oder $ können verwendet werden.",
+  "settings.extractHighlights": "Extrahieren Sie Absätze, die Hervorhebungen enthalten",
+  "settings.extractHighlightsDescription": "Zusätzlich werden alle Absätze mit Hervorhebungen extrahiert – um nur die Hervorhebungen zu extrahieren, lassen Sie das Schlüsselwort leer.",
   "settings.preserveSourceNoteTitles": "Behalten Sie die Titel der Quellnotizen mit Backlinks bei",
   "settings.preserveSourceNoteTitlesDescription": "Behält Titel und Links zurück zu ausgewählten Notizen im kombinierten Notiztext bei.",
   "settings.embedSourceNoteTitles": "Betten Sie am Ende jedes extrahierten Absatzes die Titel der Quellennotizen ein.",

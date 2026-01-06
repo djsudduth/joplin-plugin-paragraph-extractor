@@ -73,6 +73,15 @@ export namespace settings {
         description: i18n.__("settings.tagNameDescription"),
       },
 
+      extractHighlights: {
+        value: false,
+        type: SettingItemType.Bool,
+        section: "extractParagraphSection",
+        public: true,
+        label: i18n.__("settings.extractHighlights"),
+        description: i18n.__("settings.extractHighlightsDescription"),
+      },
+
       replaceKeywordwithTag: {
         value: false,
         type: SettingItemType.Bool,

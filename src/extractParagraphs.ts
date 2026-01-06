@@ -7,6 +7,7 @@ import { MenuItemLocation } from "api/types";
 
 let i18n: any;
 let phandle = null;
+const HIGHLIGHTONLY = "zzkk5930l2w";
 
 namespace extractParagraphs {
   export async function init() {
@@ -108,6 +109,12 @@ namespace extractParagraphs {
     let ckbfolder = "false";
     let pexSettings = null;
 
+    if (tagName === HIGHLIGHTONLY) {
+      tagName = "";
+    }
+
+    let highlights = await joplin.settings.value("extractHighlights");
+
     if (!refreshNote) {
       await extractParagraphs.setform(tagPrefix, tagName);
 
@@ -119,7 +126,7 @@ namespace extractParagraphs {
       ckbfolder = fresults["ckbfolder"];
       tagName = fresults["keyword"];
       tagPrefix = fresults["tag"];
-      if (tagName === "") {
+      if (tagName === "" && !highlights) {
         return;
       }
 
@@ -212,6 +219,9 @@ namespace extractParagraphs {
 
       // Save the last keyword extraction values in defaults
       await joplin.settings.setValue("tagName", tagName);
+      if (tagName.length <= 0 && highlights) {
+        tagName = HIGHLIGHTONLY;
+      }
       await joplin.settings.setValue("tagPrefix", tagPrefix);
 
       let preserveSourceNoteTitles = await joplin.settings.value(
@@ -281,8 +291,9 @@ namespace extractParagraphs {
         let last_header = "";
         let header_with_keyword = "";
         let full_page = false;
+        let pushvalue = "";
 
-        if (tagName.length >= 0) {
+        if (tagName.length >= 0 || highlights) {
           const paragraphs = note.body
             .split("\n\n")
             .filter((str) => str.trim() !== "")
@@ -343,7 +354,8 @@ namespace extractParagraphs {
                     b,
                     tagPrefix,
                     tagName,
-                    ignoreCase
+                    ignoreCase,
+                    highlights
                   );
 
                   if (pfound) {
@@ -351,23 +363,29 @@ namespace extractParagraphs {
                       nIDs += noteId + ",";
                     }
                     extractedContent = true;
+
                     if (
                       preserveSourceNoteTitles === true &&
                       !savetitle &&
                       !embedSourceNoteTitles
                     ) {
-                      if (title_count != 0) {
-                        t_prefix = "\n&nbsp;\n";
-                      }
-                      newNoteBody.push(
-                        t_prefix +
-                          "### [" +
-                          note.title +
-                          "](:/" +
-                          noteId +
-                          ")\n"
+                      //if (title_count != 0) {
+                      //  t_prefix = "\n&nbsp;\n";
+                      //}
+                      //newNoteBody.push(
+                      //  t_prefix +
+                      //    "### [" +
+                      //    note.title +
+                      //    "](:/" +
+                      //    noteId +
+                      //    ")\n"
+                      //);
+                      savetitle = await prefixParagraphs(
+                        note.title,
+                        noteId,
+                        newNoteBody,
+                        title_count
                       );
-                      savetitle = true;
                       title_count++;
                     }
                     if (
@@ -392,35 +410,19 @@ namespace extractParagraphs {
                         "(" + tagPrefix + tagName + ")\\b",
                         "gi"
                       );
-                      const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
-
-                      if (
-                        preserveSourceNoteTitles === true &&
-                        embedSourceNoteTitles
-                      ) {
-                        newNoteBody.push(
-                          finalpara +
-                            " ([" +
-                            note.title +
-                            "](:/" +
-                            noteId +
-                            "))\n"
-                        );
-                      } else {
-                        newNoteBody.push(finalpara + "\n");
-                      }
+                      pushvalue = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
                     } else {
-                      if (
-                        preserveSourceNoteTitles === true &&
-                        embedSourceNoteTitles
-                      ) {
-                        newNoteBody.push(
-                          b + " ([" + note.title + "](:/" + noteId + "))\n"
-                        );
-                      } else {
-                        newNoteBody.push(b + "\n");
-                      }
+                      pushvalue = b;
                     }
+                    await pushParagraphs(
+                      note.title,
+                      noteId,
+                      newNoteBody,
+                      pushvalue,
+                      preserveSourceNoteTitles,
+                      embedSourceNoteTitles
+                    );
+
                     if (preserveSourceNoteTitles === true) {
                       //newNoteBody.push("\n&nbsp;\n");
                     }
@@ -431,7 +433,8 @@ namespace extractParagraphs {
                   p,
                   tagPrefix,
                   tagName,
-                  ignoreCase
+                  ignoreCase,
+                  highlights
                 );
 
                 if (pfound) {
@@ -439,18 +442,24 @@ namespace extractParagraphs {
                     nIDs += noteId + ",";
                   }
                   extractedContent = true;
+
                   if (
                     preserveSourceNoteTitles === true &&
                     !savetitle &&
                     !embedSourceNoteTitles
                   ) {
-                    if (title_count != 0) {
-                      t_prefix = "\n&nbsp;\n";
-                    }
-                    newNoteBody.push(
-                      t_prefix + "### [" + note.title + "](:/" + noteId + ")\n"
+                    //if (title_count != 0) {
+                    //  t_prefix = "\n&nbsp;\n";
+                    //}
+                    //newNoteBody.push(
+                    //  t_prefix + "### [" + note.title + "](:/" + noteId + ")\n"
+                    //);
+                    savetitle = await prefixParagraphs(
+                      note.title,
+                      noteId,
+                      newNoteBody,
+                      title_count
                     );
-                    savetitle = true;
                     title_count++;
                   }
                   if (
@@ -475,40 +484,24 @@ namespace extractParagraphs {
                       "(" + tagPrefix + tagName + ")\\b",
                       "gi"
                     );
-                    const finalpara = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
-                    if (
-                      preserveSourceNoteTitles === true &&
-                      embedSourceNoteTitles
-                    ) {
-                      newNoteBody.push(
-                        finalpara +
-                          " ([" +
-                          note.title +
-                          "](:/" +
-                          noteId +
-                          "))\n"
-                      );
-                    } else {
-                      newNoteBody.push(finalpara + "\n");
-                    }
+                    pushvalue = pass1.replaceAll(regex, ""); //.replace(/\s{2,}/g, " ");
                   } else {
-                    if (
-                      preserveSourceNoteTitles === true &&
-                      embedSourceNoteTitles
-                    ) {
-                      newNoteBody.push(
-                        p + " ([" + note.title + "](:/" + noteId + "))\n"
-                      );
-                    } else {
-                      newNoteBody.push(p + "\n");
-                    }
+                    pushvalue = p;
                   }
-                  if (
-                    preserveSourceNoteTitles === true &&
-                    !embedSourceNoteTitles
-                  ) {
-                    //newNoteBody.push("\n&nbsp;\n");
-                  }
+                  await pushParagraphs(
+                    note.title,
+                    noteId,
+                    newNoteBody,
+                    pushvalue,
+                    preserveSourceNoteTitles,
+                    embedSourceNoteTitles
+                  );
+                }
+                if (
+                  preserveSourceNoteTitles === true &&
+                  !embedSourceNoteTitles
+                ) {
+                  //newNoteBody.push("\n&nbsp;\n");
                 }
               }
             }
@@ -542,7 +535,7 @@ namespace extractParagraphs {
         }
       }
 
-      if (refreshMetaData) {
+      if (refreshMetaData && tagName.length >= 0) {
         // add the refresh information
         const now = new Date();
         const pexDate = now.getTime();
@@ -597,6 +590,7 @@ namespace extractParagraphs {
       }
 
       // create new note
+
       const newNoteData = {
         title: newTitle,
         body: newNoteBody.join("\n"),
@@ -607,6 +601,16 @@ namespace extractParagraphs {
       let newNote = null;
       if (refreshNote) {
         if (!nullRefresh) {
+          // test diff
+          //const refreshfooter = rnote.body.split(/> <!-- pex|> < -- pex/);
+          //const newfooter = newNoteData.body.split(/> <!-- pex|> < -- pex/);
+          //var newDiff = diffString(refreshfooter[0], newfooter[0]);
+          //if (richtextMetaData) {
+          //  newDiff += "> < -- pex" + refreshfooter[1];
+          //} else {
+          //  newDiff += "> <!-- pex" + refreshfooter[1];
+          //}
+
           const tempRefresh = nIDs.split(",")[0];
           //await joplin.commands.execute("openNote",todoID);
           //await joplin.commands.execute("textSelectAll");
@@ -664,6 +668,124 @@ namespace extractParagraphs {
         await joplin.commands.execute("openNote", newNote.id);
       }
     }
+
+    function diff(o, n) {
+      var ns = new Object();
+      var os = new Object();
+
+      for (var i = 0; i < n.length; i++) {
+        if (ns[n[i]] == null) ns[n[i]] = { rows: new Array(), o: null };
+        ns[n[i]].rows.push(i);
+      }
+
+      for (var i = 0; i < o.length; i++) {
+        if (os[o[i]] == null) os[o[i]] = { rows: new Array(), n: null };
+        os[o[i]].rows.push(i);
+      }
+
+      for (const i in ns) {
+        if (
+          ns[i].rows.length == 1 &&
+          typeof os[i] != "undefined" &&
+          os[i].rows.length == 1
+        ) {
+          n[ns[i].rows[0]] = { text: n[ns[i].rows[0]], row: os[i].rows[0] };
+          o[os[i].rows[0]] = { text: o[os[i].rows[0]], row: ns[i].rows[0] };
+        }
+      }
+
+      for (var i = 0; i < n.length - 1; i++) {
+        if (
+          n[i].text != null &&
+          n[i + 1].text == null &&
+          n[i].row + 1 < o.length &&
+          o[n[i].row + 1].text == null &&
+          n[i + 1] == o[n[i].row + 1]
+        ) {
+          n[i + 1] = { text: n[i + 1], row: n[i].row + 1 };
+          o[n[i].row + 1] = { text: o[n[i].row + 1], row: i + 1 };
+        }
+      }
+
+      for (var i = n.length - 1; i > 0; i--) {
+        if (
+          n[i].text != null &&
+          n[i - 1].text == null &&
+          n[i].row > 0 &&
+          o[n[i].row - 1].text == null &&
+          n[i - 1] == o[n[i].row - 1]
+        ) {
+          n[i - 1] = { text: n[i - 1], row: n[i].row - 1 };
+          o[n[i].row - 1] = { text: o[n[i].row - 1], row: i - 1 };
+        }
+      }
+
+      return { o: o, n: n };
+    }
+
+    function diffString(o, n) {
+      o = o.replace(/\s+$/, "");
+      n = n.replace(/\s+$/, "");
+
+      var out = diff(
+        o == "" ? [] : o.split(/\s+/),
+        n == "" ? [] : n.split(/\s+/)
+      );
+      var str = "";
+
+      var oSpace = o.match(/\s+/g);
+      if (oSpace == null) {
+        oSpace = ["\n"];
+      } else {
+        oSpace.push("\n");
+      }
+      var nSpace = n.match(/\s+/g);
+      if (nSpace == null) {
+        nSpace = ["\n"];
+      } else {
+        nSpace.push("\n");
+      }
+
+      if (out.n.length == 0) {
+        for (var i = 0; i < out.o.length; i++) {
+          str += "<del>" + escape(out.o[i]) + oSpace[i] + "</del>";
+        }
+      } else {
+        if (out.n[0].text == null) {
+          for (n = 0; n < out.o.length && out.o[n].text == null; n++) {
+            str += "<del>" + escape(out.o[n]) + oSpace[n] + "</del>";
+          }
+        }
+
+        for (var i = 0; i < out.n.length; i++) {
+          if (out.n[i].text == null) {
+            str += "<ins>" + escape(out.n[i]) + nSpace[i] + "</ins>";
+          } else {
+            var pre = "";
+
+            for (
+              n = out.n[i].row + 1;
+              n < out.o.length && out.o[n].text == null;
+              n++
+            ) {
+              pre += "<del>" + escape(out.o[n]) + oSpace[n] + "</del>";
+            }
+            str += "" + out.n[i].text + nSpace[i] + pre;
+          }
+        }
+      }
+
+      return decodeURIComponent(
+        str
+          .replace(/<\/ins><ins>/g, "")
+          .replace(/<\/del><del>/g, "")
+          .replace(/- <del>[ ]<\/del><ins>[x]<\/ins>/g, "- [x] <del>[ ] </del>")
+          .replace(/%3C/g, "<")
+          .replace(/%3E/g, ">")
+          .replace(/<ins>/g, "")
+          .replace(/<\/ins>/g, "")
+      );
+    }
   }
 
   export async function translate() {
@@ -682,19 +804,55 @@ namespace extractParagraphs {
     i18n.setLocale(joplinLocale);
   }
 
+  export async function prefixParagraphs(
+    title: string,
+    id: string,
+    body: any[],
+    title_count: number
+  ) {
+    let t_prefix = "";
+
+    if (title_count != 0) {
+      t_prefix = "\n&nbsp;\n";
+    }
+    body.push(t_prefix + "### [" + title + "](:/" + id + ")\n");
+    return true; //savetitle
+  }
+
+  export async function pushParagraphs(
+    title: string,
+    id: string,
+    body: any[],
+    pushvalue: string,
+    preserveSourceNoteTitles: boolean,
+    embedSourceNoteTitles: boolean
+  ) {
+    if (preserveSourceNoteTitles === true && embedSourceNoteTitles) {
+      body.push(pushvalue + " ([" + title + "](:/" + id + "))\n");
+    } else {
+      body.push(pushvalue + "\n");
+    }
+  }
+
   export async function findParagraphs(
     paraGraphs: string,
     tPrefix: string,
     tName: string,
-    iCase: boolean
+    iCase: boolean,
+    highLights: boolean
   ): Promise<boolean> {
     let pp = paraGraphs;
     let tn = tName;
+    let hlFound = highLights;
+
     if (iCase === true) {
       pp = paraGraphs.toLowerCase();
       tn = tName.toLowerCase();
     }
 
+    if (highLights === true) {
+      hlFound = findHighlights(pp);
+    }
     pp = pp.replace(/[,?\/!\^&\*\];:{}=\`~()]/g, " ");
     pp = pp.replace(/\s{2,}/g, " ") + " ";
 
@@ -703,12 +861,26 @@ namespace extractParagraphs {
       pp.includes(tPrefix + tn + ".") ||
       pp.includes(tPrefix + tn + "\n") ||
       pp.includes(tPrefix + tn + "<") ||
-      pp.includes(tPrefix + tn + "=")
+      pp.includes(tPrefix + tn + "=") ||
+      hlFound
     ) {
       return true;
     } else {
       return false;
     }
+  }
+
+  function findHighlights(markdownText) {
+    const regex = /==(.*?)==/g;
+
+    const matches = [];
+    let match;
+    // Loop through all matches in the text
+    while ((match = regex.exec(markdownText)) !== null) {
+      // match[1] contains the text *inside* the equals signs
+      matches.push(match[1]);
+    }
+    return matches.length > 0;
   }
 
   export async function extractHashtagsFromMarkdown(

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.2 (2026-01-06)
+
+- Fixed extraction error if a selected note has no data
+- Added setting to extract paragraphs with highlights
+
 ## v1.2.1 (2025-01-10)
 
 - Added setting to stop the deletion of refresh metadata if extracted note is edited in the rich text editor

@@ -17,6 +17,8 @@
   "settings.tagNameDescription": "Default or last used keyword or hashtag text (without prefix) used within the paragraphs.",
   "settings.tagPrefix": "Default or Last Used Tag Prefix Character",
   "settings.tagPrefixDescription": "Default or last used prefix for hashtags or any custom tags - # is preferred but % or $ can be used.",
+  "settings.extractHighlights": "Extract paragraphs that contain highlights",
+  "settings.extractHighlightsDescription": "Additionally extracts any paragraphs with highlights - to extract only highlights leave the keyword blank",
   "settings.preserveSourceNoteTitles": "Preserve source note titles with back links",
   "settings.preserveSourceNoteTitlesDescription": "Preserves titles and links back to selected notes within the combined note body",
   "settings.embedSourceNoteTitles": "Embed source note titles at end of each extracted paragraph",
